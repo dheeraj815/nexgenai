@@ -4,7 +4,7 @@ import { apiRequest } from '../api';
 export interface UserProfile {
   id: string;
   userId: string;
-  academicStage: string; // CLASS_11, CLASS_12, YEAR_1, YEAR_2, YEAR_3, YEAR_4, INTERNSHIP, PLACEMENT, CAREER
+  academicStage: string;
   institutionName?: string;
   degree?: string;
   branch?: string;
@@ -51,6 +51,49 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Normalize backend snake_case user object → frontend camelCase User shape
+function mapUser(raw: any): User {
+  const fullName: string = raw?.full_name || raw?.fullName || '';
+  const parts = fullName.trim().split(' ');
+  const firstName = raw?.firstName || parts[0] || '';
+  const lastName = raw?.lastName || parts.slice(1).join(' ') || '';
+
+  const profile = raw?.profile;
+  let mappedProfile: UserProfile | undefined;
+  if (profile) {
+    mappedProfile = {
+      id: profile.id || '',
+      userId: profile.user_id || profile.userId || raw?.id || '',
+      academicStage: profile.academic_stage || profile.academicStage || 'COLLEGE_YEAR_1',
+      institutionName: profile.institution || profile.institutionName,
+      degree: profile.degree,
+      branch: profile.department || profile.branch,
+      graduationYear: profile.graduation_year || profile.graduationYear,
+      cgpa: profile.cgpa,
+      backlogs: profile.backlogs || 0,
+      location: profile.location,
+      bio: profile.bio,
+      githubUrl: profile.github_url || profile.githubUrl,
+      linkedinUrl: profile.linkedin_url || profile.linkedinUrl,
+      portfolioUrl: profile.portfolio_url || profile.portfolioUrl,
+      targetRole: profile.target_role || profile.targetRole,
+      readinessScore: profile.readiness_score || profile.readinessScore || 0,
+      onboardingCompleted: profile.is_onboarded || profile.onboardingCompleted || false,
+    };
+  }
+
+  return {
+    id: raw?.id || '',
+    email: raw?.email || '',
+    firstName,
+    lastName,
+    role: raw?.role || 'STUDENT',
+    avatarUrl: raw?.avatar_url || raw?.avatarUrl,
+    phone: raw?.phone,
+    profile: mappedProfile,
+  };
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(localStorage.getItem('nexgenai_token'));
@@ -66,9 +109,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     const res = await apiRequest('/auth/me');
-    if (res.success && res.data?.user) {
-      setUser(res.data.user);
-      setViewRole(res.data.user.role);
+    // /auth/me returns a flat user object (not nested under .user)
+    if (res.success && res.data?.id) {
+      const mapped = mapUser(res.data);
+      setUser(mapped);
+      setViewRole(mapped.role);
     } else {
       setUser(null);
       localStorage.removeItem('nexgenai_token');
@@ -88,11 +133,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify({ email, password: pass }),
     });
 
-    if (res.success && res.data?.token) {
-      localStorage.setItem('nexgenai_token', res.data.token);
-      setToken(res.data.token);
-      setUser(res.data.user);
-      setViewRole(res.data.user.role);
+    const authToken = res.data?.access_token || res.data?.token;
+    if (res.success && authToken) {
+      localStorage.setItem('nexgenai_token', authToken);
+      setToken(authToken);
+      // login returns { access_token, user: { id, email, role, full_name, ... } }
+      const mapped = mapUser(res.data?.user || res.data);
+      setUser(mapped);
+      setViewRole(mapped.role);
       setIsLoading(false);
       return { success: true };
     } else {
@@ -108,11 +156,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(data),
     });
 
-    if (res.success && res.data?.token) {
-      localStorage.setItem('nexgenai_token', res.data.token);
-      setToken(res.data.token);
-      setUser(res.data.user);
-      setViewRole(res.data.user.role);
+    const authToken = res.data?.access_token || res.data?.token;
+    if (res.success && authToken) {
+      localStorage.setItem('nexgenai_token', authToken);
+      setToken(authToken);
+      // register returns { access_token, user: { id, email, role, full_name, ... } }
+      const mapped = mapUser(res.data?.user || res.data);
+      setUser(mapped);
+      setViewRole(mapped.role);
       setIsLoading(false);
       return { success: true };
     } else {

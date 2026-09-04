@@ -10,8 +10,11 @@ class UserSignupRequest(BaseModel):
     email: EmailStr
     password: str = Field(min_length=6)
     role: str = "STUDENT"
-    full_name: str
-    academic_stage: str = "COLLEGE_YEAR_1"
+    full_name: Optional[str] = None
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    academic_stage: Optional[str] = None
+    academicStage: Optional[str] = None
 
 class UserLoginRequest(BaseModel):
     email: EmailStr

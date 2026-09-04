@@ -170,3 +170,22 @@ def test_ai_career_mentor():
     assert mentor_res.status_code == 200
     assert "reply" in mentor_res.json()
     assert len(mentor_res.json()["reply"]) > 20
+
+def test_register_alias_and_camelcase():
+    import uuid
+    uid = uuid.uuid4().hex[:8]
+    email = f"user_{uid}@campus.edu"
+    register_res = client.post("/api/v1/auth/register", json={
+        "email": email,
+        "password": "SecurePassword123!",
+        "firstName": "Arjun",
+        "lastName": "Reddy",
+        "academicStage": "COLLEGE_YEAR_3",
+        "role": "STUDENT"
+    })
+    assert register_res.status_code == 200
+    data = register_res.json()
+    assert "access_token" in data
+    assert data["user"]["full_name"] == "Arjun Reddy"
+    assert data["user"]["academic_stage"] == "COLLEGE_YEAR_3"
+

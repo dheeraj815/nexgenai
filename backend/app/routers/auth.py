@@ -9,11 +9,21 @@ from backend.app.schemas.schemas import UserSignupRequest, UserLoginRequest, Tok
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/signup", response_model=TokenResponse)
+@router.post("/register", response_model=TokenResponse)
 def signup(req: UserSignupRequest, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered")
     
+    # Resolve full name and academic stage flexibly
+    full_name = req.full_name
+    if not full_name and (req.firstName or req.lastName):
+        full_name = f"{req.firstName or ''} {req.lastName or ''}".strip()
+    if not full_name:
+        full_name = "Student"
+
+    stage = req.academic_stage or req.academicStage or "COLLEGE_YEAR_1"
+
     hashed = get_password_hash(req.password)
     new_user = User(email=req.email, hashed_password=hashed, role=req.role)
     db.add(new_user)
@@ -21,8 +31,8 @@ def signup(req: UserSignupRequest, db: Session = Depends(get_db)):
 
     new_profile = Profile(
         user_id=new_user.id,
-        full_name=req.full_name,
-        academic_stage=req.academic_stage,
+        full_name=full_name,
+        academic_stage=stage,
         is_onboarded=False
     )
     db.add(new_profile)
