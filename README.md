@@ -2,85 +2,73 @@
 
 > "The Student & TPO Operating System for Skills, Learning, Proof of Work, Placements & Modern Hiring."
 
-NexGenAI is a full-stack production platform connecting the unbroken student continuum from **Class 11 & Class 12** to **College Years 1–4**, **Internships**, **Campus Placements**, and **First Job / Career Growth**.
+NexGenAI is a production-grade full-stack platform connecting the complete student continuum: **Class 11 & Class 12** → **College Years 1–4** → **Internships** → **Campus Placements** → **First Job & Career Growth**.
 
 ---
 
-## 🌟 Core System Highlights
+## 🌟 Core System Architecture
 
-- **Unbroken Student Continuum**: Class 11 (Career Discovery) → Class 12 (Direction & Pathways) → Year 1 (CS Foundations) → Year 2 (Specialization) → Year 3 (Industry Prep & Internships) → Year 4 (Placement Command) → Career Growth.
-- **Three Product Surfaces in One**:
-  - **Student OS**: Dashboard, Career Passport, Learning Engine, Practice Labs, AI Career Mentor, Resume ATS, Job Matches.
-  - **College / TPO OS**: Placement Drives, Automated Eligibility Engine, Student Directory, Analytics.
-  - **Recruiter OS**: Candidate Talent Search, Job Openings, Shortlists, Verified Offers.
-- **Interactive Practice & Verification Labs**:
-  - **Coding Lab**: In-browser sandbox code runner with unit tests and automated skill verification.
-  - **System Design Canvas**: Architecture builder with real-time SPOF, latency, and bottleneck analysis.
-  - **SOC Incident Simulator**: Synthetic cybersecurity threat triage, syslog analysis, and containment response.
-  - **Resume & ATS Studio**: Real keyword matching against job descriptions, metrics and action verb detection.
-- **AI & Voice Architecture**:
-  - **AIService**: Centralized AI engine supporting Gemini 2.5/Pro and deterministic intelligent local NLP heuristic fallbacks.
-  - **VoiceService**: Global Web Speech API audio narration for course lessons, spoken AI mentor chat, and mock interviews.
-- **Zero Monetization**: Absolutely no plans, subscriptions, pricing tiers, paywalls, or billing integrations.
+- **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS (`frontend/`)
+- **Backend**: Python 3.13 + FastAPI + SQLAlchemy + Pydantic (`backend/`)
+- **Database**: PostgreSQL single source of truth with zero-config local SQLite fallback (`database/`)
+- **Object Storage**: Clean storage abstraction layer for resumes and artifacts (`uploads/`)
+- **AI Engine**: Centralized AI Provider with Google Gemini adapter & deterministic local NLP fallback (`backend/app/services/ai_service.py`)
+- **Voice Engine**: Global Voice Provider abstraction supporting text-to-speech, speech-to-text, and accessibility (`backend/app/services/voice_service.py`)
+- **Practice Labs**: Sandboxed Python Coding Lab, Defensive Cybersecurity SOC Simulator, System Design Canvas, Resume ATS Studio.
+- **Zero Monetization**: Zero subscription tiers, zero billing, zero paywalls, zero payment webhooks.
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- **Node.js**: v20+ (Tested on v24.14.0)
-- **npm**: v10+ (Tested on 11.9.0)
+### 1. Prerequisites
+- **Python**: 3.11+
+- **Node.js**: v20+ / npm v10+
 
-### 1. Installation
+### 2. Launching with One Click (Windows)
+Double-click `scripts/dev.bat` or run:
 ```bash
-# Clone the repository
-git clone https://github.com/dheeraj815/nexgenai.git
-cd nexgenai
-
-# Install root workspaces dependencies
-npm install
-```
-
-### 2. Database Migration & Seed
-```bash
-# Push schema to SQLite and run comprehensive 30-domain seed script
-npm run db:migrate --workspace=server
-npm run db:seed --workspace=server
-```
-
-### 3. Run Development Servers
-```bash
-# Start backend (port 5000) and frontend (port 5173) concurrently
 npm run dev
 ```
+This concurrently boots:
+- **FastAPI Backend**: `http://127.0.0.1:8000` (Interactive API Docs: `http://127.0.0.1:8000/docs`)
+- **React Frontend**: `http://localhost:5173`
 
-Visit: **http://localhost:5173**
+### 3. Running Automated Tests
+```bash
+npm run test
+# or:
+backend\venv\Scripts\python.exe -m pytest tests/test_api.py -v
+```
 
 ---
 
-## 🧪 Automated Testing
-```bash
-npm run test --workspace=server
-```
-Runs the 12 automated API, persistence, security, and RBAC integration tests.
+## 🔑 Pre-Seeded Demo Accounts
+
+| Role | Email | Password | Surface |
+| :--- | :--- | :--- | :--- |
+| **Student** | `student@demo.edu` | `Demo@123` | Student Dashboard, Passport, Journey, Labs |
+| **TPO / College Admin** | `tpo@demo.edu` | `Demo@123` | Placement Drives, Eligibility Engine, Student Analytics |
+| **Recruiter** | `recruiter@techcorp.com` | `Demo@123` | Talent Search, Job Postings, Shortlists |
+| **Super Admin** | `admin@demo.edu` | `Demo@123` | System Statistics, Audit Logs, Governance |
 
 ---
 
 ## 📁 Repository Structure
+
 ```
 nexgenai/
-├── client/              # React 18/19 + TypeScript + Vite + Tailwind CSS
-│   ├── src/
-│   │   ├── api/         # Typed API client
-│   │   ├── components/  # Layout, Voice controls, Skeletons, Modals
-│   │   ├── context/     # AuthContext, VoiceContext, NotificationContext
-│   │   └── pages/       # Student OS, TPO OS, Recruiter OS, Labs, Auth
-├── server/              # Node.js + Express + TypeScript + Prisma ORM
-│   ├── prisma/          # Relational schema (38 models) & rich seed script
-│   ├── src/
-│   │   ├── config/      # Environment variables and security configurations
-│   │   ├── middleware/  # JWT authentication, RBAC, error handlers
-│   │   └── modules/     # Auth, Passport, Learning, Skills, Coding, SOC, ATS, TPO, Recruiter
-│   └── tests/           # Automated end-to-end API test suites
-└── docs/                # Architectural and technical documentation
+├── frontend/             # React + TypeScript + Vite Client
+├── backend/              # Python + FastAPI REST API
+│   ├── app/              # Core, Models, Schemas, Routers, Services
+│   ├── requirements.txt
+│   └── venv/             # Self-contained virtual environment
+├── database/             # Database migrations & seed scripts
+├── tests/                # Automated pytest suite
+├── docs/                 # Complete architectural documentation
+├── scripts/              # Developer batch scripts (dev.bat, test.bat, seed.bat)
+├── .github/workflows/    # CI/CD pipeline
+├── .env.example
+├── README.md
+└── START_HERE.md
 ```

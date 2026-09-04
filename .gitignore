@@ -1,4 +1,4 @@
-﻿# Dependencies
+# Dependencies
 node_modules/
 .pnp
 .pnp.js
@@ -32,6 +32,15 @@ prisma/dev.db-journal
 uploads/
 tmp/
 
+# Python & Virtualenv
+backend/venv/
+venv/
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
 # OS Files
 .DS_Store
 Thumbs.db
+

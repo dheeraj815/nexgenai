@@ -4,16 +4,13 @@
   "description": "NexGenAI — Campus to Career AI Operating System",
   "private": true,
   "workspaces": [
-    "server",
-    "client"
+    "frontend"
   ],
   "scripts": {
-    "dev": "concurrently -n \"SERVER,CLIENT\" -c \"blue,magenta\" \"npm run dev --workspace=server\" \"npm run dev --workspace=client\"",
-    "build": "npm run build --workspace=server && npm run build --workspace=client",
-    "test": "npm run test --workspace=server",
-    "start": "npm run start --workspace=server",
-    "db:migrate": "npm run db:migrate --workspace=server",
-    "db:seed": "npm run db:seed --workspace=server"
+    "dev": "concurrently -n \"FASTAPI,VITE\" -c \"blue,magenta\" \"backend\\venv\\Scripts\\python.exe -m uvicorn backend.app.main:app --host 127.0.0.1 --port 8000 --reload\" \"npm run dev --workspace=frontend\"",
+    "build": "npm run build --workspace=frontend",
+    "test": "backend\\venv\\Scripts\\python.exe -m pytest tests/test_api.py -v",
+    "db:seed": "backend\\venv\\Scripts\\python.exe -m database.seeds.seed_data"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"
