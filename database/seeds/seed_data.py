@@ -13,16 +13,21 @@ def run_seed():
 
     # 1. Users & Profiles
     demo_users = [
-        {"email": "student@demo.edu", "role": "STUDENT", "name": "Aditya Sharma", "stage": "COLLEGE_YEAR_3", "target": "Full Stack Engineer", "cgpa": 8.8},
-        {"email": "tpo@demo.edu", "role": "TPO", "name": "Dr. Rajesh Verma", "stage": "COLLEGE_YEAR_4", "target": "Training & Placement Officer", "cgpa": 9.5},
-        {"email": "recruiter@techcorp.com", "role": "RECRUITER", "name": "Sarah Jenkins", "stage": "FIRST_JOB", "target": "Lead Talent Partner", "cgpa": 8.0},
-        {"email": "admin@demo.edu", "role": "SUPER_ADMIN", "name": "System Administrator", "stage": "FIRST_JOB", "target": "Platform Admin", "cgpa": 9.0}
+        {"email": "student11@nexgenai.edu", "role": "STUDENT", "name": "Dheeraj Muley", "stage": "CLASS_11", "target": "Software Engineering & AI Foundations", "cgpa": 9.4, "pwd": "Password@123"},
+        {"email": "student12@nexgenai.edu", "role": "STUDENT", "name": "Aarav Sharma", "stage": "CLASS_12", "target": "Web & Systems Engineering", "cgpa": 9.1, "pwd": "Password@123"},
+        {"email": "student.y4@nexgenai.edu", "role": "STUDENT", "name": "Vikram Malhotra", "stage": "COLLEGE_YEAR_4", "target": "SDE-1 / Graduate Cloud Engineer", "cgpa": 9.3, "pwd": "Password@123"},
+        {"email": "tpo@college.edu", "role": "TPO", "name": "Dr. Ramesh Kulkarni", "stage": "COLLEGE_YEAR_4", "target": "Training & Placement Officer", "cgpa": 9.8, "pwd": "Password@123"},
+        {"email": "recruiter@google.com", "role": "RECRUITER", "name": "Sarah Jenkins", "stage": "FIRST_JOB", "target": "Lead University Talent Partner", "cgpa": 9.5, "pwd": "Password@123"},
+        {"email": "student@demo.edu", "role": "STUDENT", "name": "Aditya Sharma", "stage": "COLLEGE_YEAR_3", "target": "Full Stack Engineer", "cgpa": 8.8, "pwd": "Demo@123"},
+        {"email": "tpo@demo.edu", "role": "TPO", "name": "Dr. Rajesh Verma", "stage": "COLLEGE_YEAR_4", "target": "Training & Placement Officer", "cgpa": 9.5, "pwd": "Demo@123"},
+        {"email": "recruiter@techcorp.com", "role": "RECRUITER", "name": "Sarah Jenkins", "stage": "FIRST_JOB", "target": "Lead Talent Partner", "cgpa": 8.0, "pwd": "Demo@123"},
+        {"email": "admin@demo.edu", "role": "SUPER_ADMIN", "name": "System Administrator", "stage": "FIRST_JOB", "target": "Platform Admin", "cgpa": 9.0, "pwd": "Demo@123"}
     ]
 
     for u in demo_users:
         existing = db.query(User).filter(User.email == u["email"]).first()
         if not existing:
-            new_u = User(email=u["email"], hashed_password=get_password_hash("Demo@123"), role=u["role"])
+            new_u = User(email=u["email"], hashed_password=get_password_hash(u.get("pwd", "Password@123")), role=u["role"])
             db.add(new_u)
             db.flush()
             prof = Profile(

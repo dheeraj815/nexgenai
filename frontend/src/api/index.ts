@@ -14,8 +14,180 @@ import {
 const API_BASE = (import.meta as any).env?.VITE_API_URL || '';
 const BASE_URL = `${API_BASE}/api/v1`;
 
+// Pre-seeded professional verified personas (Class 11 to Company)
+export const DEFAULT_SEED_ACCOUNTS = [
+  {
+    id: 'usr_c11',
+    email: 'student11@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Dheeraj',
+    lastName: 'Muley',
+    full_name: 'Dheeraj Muley',
+    role: 'STUDENT',
+    academic_stage: 'CLASS_11',
+    target_role: 'Software Engineering & AI Foundations',
+    readiness_score: 72.0,
+    institution: 'Delhi Public School / Tech High School',
+    department: 'Science & Computer Science',
+    graduation_year: 2028,
+    cgpa: 9.4
+  },
+  {
+    id: 'usr_c12',
+    email: 'student12@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Aarav',
+    lastName: 'Sharma',
+    full_name: 'Aarav Sharma',
+    role: 'STUDENT',
+    academic_stage: 'CLASS_12',
+    target_role: 'Web & Systems Engineering',
+    readiness_score: 68.0,
+    institution: 'Kendriya Vidyalaya / Tech Scholars',
+    department: 'Computer Applications',
+    graduation_year: 2027,
+    cgpa: 9.1
+  },
+  {
+    id: 'usr_y1',
+    email: 'student.y1@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Ananya',
+    lastName: 'Roy',
+    full_name: 'Ananya Roy',
+    role: 'STUDENT',
+    academic_stage: 'YEAR_1',
+    target_role: 'Full Stack Web Developer',
+    readiness_score: 75.0,
+    institution: 'National Institute of Technology',
+    department: 'Computer Science & Engineering',
+    graduation_year: 2029,
+    cgpa: 8.9
+  },
+  {
+    id: 'usr_y2',
+    email: 'student.y2@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Rohan',
+    lastName: 'Verma',
+    full_name: 'Rohan Verma',
+    role: 'STUDENT',
+    academic_stage: 'YEAR_2',
+    target_role: 'Cloud & Distributed Systems',
+    readiness_score: 79.0,
+    institution: 'National Institute of Technology',
+    department: 'Information Technology',
+    graduation_year: 2028,
+    cgpa: 8.7
+  },
+  {
+    id: 'usr_y3',
+    email: 'student.y3@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Pooja',
+    lastName: 'Iyer',
+    full_name: 'Pooja Iyer',
+    role: 'STUDENT',
+    academic_stage: 'YEAR_3',
+    target_role: 'SDE & System Architecture',
+    readiness_score: 85.0,
+    institution: 'BITS Pilani',
+    department: 'Computer Science',
+    graduation_year: 2027,
+    cgpa: 9.2
+  },
+  {
+    id: 'usr_y4',
+    email: 'student.y4@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Vikram',
+    lastName: 'Malhotra',
+    full_name: 'Vikram Malhotra',
+    role: 'STUDENT',
+    academic_stage: 'YEAR_4',
+    target_role: 'SDE-1 / Graduate Cloud Engineer',
+    readiness_score: 92.0,
+    institution: 'Indian Institute of Technology',
+    department: 'Computer Science & Engineering',
+    graduation_year: 2026,
+    cgpa: 9.3
+  },
+  {
+    id: 'usr_tpo',
+    email: 'tpo@college.edu',
+    password: 'Password@123',
+    firstName: 'Ramesh',
+    lastName: 'Kulkarni',
+    full_name: 'Dr. Ramesh Kulkarni (Head TPO)',
+    role: 'TPO',
+    academic_stage: 'YEAR_4',
+    target_role: 'Training & Placement Officer',
+    readiness_score: 98.0,
+    institution: 'National Institute of Technology',
+    department: 'Corporate Relations & Placement Cell',
+    graduation_year: 2026,
+    cgpa: 10.0
+  },
+  {
+    id: 'usr_recruiter',
+    email: 'recruiter@google.com',
+    password: 'Password@123',
+    firstName: 'Sarah',
+    lastName: 'Jenkins',
+    full_name: 'Sarah Jenkins (Google Cloud Recruiter)',
+    role: 'RECRUITER',
+    academic_stage: 'CAREER',
+    target_role: 'Lead University Talent Partner',
+    readiness_score: 95.0,
+    institution: 'Google Cloud Talent Acquisition',
+    department: 'Engineering Hiring',
+    graduation_year: 2026,
+    cgpa: 9.8
+  },
+  {
+    id: 'usr_admin',
+    email: 'admin@nexgenai.edu',
+    password: 'Password@123',
+    firstName: 'Admin',
+    lastName: 'User',
+    full_name: 'NexGenAI System Admin',
+    role: 'SUPER_ADMIN',
+    academic_stage: 'CAREER',
+    target_role: 'Platform Administrator',
+    readiness_score: 100.0,
+    institution: 'NexGenAI Global HQ',
+    department: 'Core Infrastructure',
+    graduation_year: 2026,
+    cgpa: 10.0
+  }
+];
+
+function getRegisteredUsers(): any[] {
+  try {
+    const raw = localStorage.getItem('nexgenai_registered_users');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {}
+  localStorage.setItem('nexgenai_registered_users', JSON.stringify(DEFAULT_SEED_ACCOUNTS));
+  return DEFAULT_SEED_ACCOUNTS;
+}
+
+function saveRegisteredUser(user: any) {
+  const users = getRegisteredUsers();
+  const existingIdx = users.findIndex(u => u.email.toLowerCase() === user.email.toLowerCase());
+  if (existingIdx >= 0) {
+    users[existingIdx] = { ...users[existingIdx], ...user };
+  } else {
+    users.push(user);
+  }
+  localStorage.setItem('nexgenai_registered_users', JSON.stringify(users));
+}
+
 // Client-side Resilient Mock Request Dispatcher
-// Automatically engaged on Vercel static deployments or when backend is unreachable
 function handleMockRequest(endpoint: string, options: RequestInit = {}): { success: boolean; data?: any; error?: string } {
   let body: any = {};
   if (options.body && typeof options.body === 'string') {
@@ -26,7 +198,6 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     }
   }
 
-  // Helper to get stored user
   const getStoredUser = () => {
     try {
       const raw = localStorage.getItem('nexgenai_user');
@@ -37,37 +208,87 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
 
   // 1. Auth: Register / Signup
   if (endpoint.includes('/auth/register') || endpoint.includes('/auth/signup')) {
-    const fullName = body.full_name || `${body.firstName || ''} ${body.lastName || ''}`.trim() || 'Student';
+    const email = (body.email || '').trim().toLowerCase();
+    const password = body.password || '';
+    const firstName = (body.firstName || body.first_name || '').trim();
+    const lastName = (body.lastName || body.last_name || '').trim();
+    const fullName = body.full_name || `${firstName} ${lastName}`.trim() || 'Student';
     const stage = body.academic_stage || body.academicStage || 'CLASS_11';
-    const email = body.email || 'student@nexgenai.edu';
     const role = body.role || 'STUDENT';
-    const userId = 'usr_' + Math.random().toString(36).substring(2, 9);
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + btoa(JSON.stringify({ sub: userId, role })) + '.signature';
+    const targetRole = body.targetRole || body.target_role || (stage === 'CLASS_11' ? 'Computational Thinking & AI' : 'Software Engineering');
 
-    const mockUser = {
+    if (!email) {
+      return { success: false, error: 'Email address is required.' };
+    }
+    if (!password || password.length < 6) {
+      return { success: false, error: 'Password must be at least 6 characters long.' };
+    }
+
+    const users = getRegisteredUsers();
+    if (users.some(u => u.email.toLowerCase() === email)) {
+      return {
+        success: false,
+        error: `An account with email "${email}" already exists. Please sign in instead.`
+      };
+    }
+
+    const userId = 'usr_' + Math.random().toString(36).substring(2, 9);
+    const initialScore = stage === 'CLASS_11' ? 72.0 : (stage === 'CLASS_12' ? 68.0 : 75.0);
+
+    const newUserRecord = {
+      id: userId,
+      email,
+      password,
+      full_name: fullName,
+      firstName: firstName || fullName.split(' ')[0],
+      lastName: lastName || fullName.split(' ').slice(1).join(' '),
+      role,
+      academic_stage: stage,
+      target_role: targetRole,
+      readiness_score: initialScore,
+      institution: body.institution || (stage.startsWith('CLASS') ? 'Delhi Public School' : 'National Institute of Technology'),
+      department: body.department || (stage.startsWith('CLASS') ? 'Science & Computing' : 'Computer Science & Engineering'),
+      graduation_year: 2028,
+      cgpa: 9.0
+    };
+
+    saveRegisteredUser(newUserRecord);
+
+    const sessionUser = {
       id: userId,
       email,
       role,
+      firstName: newUserRecord.firstName,
+      lastName: newUserRecord.lastName,
       full_name: fullName,
       academic_stage: stage,
-      is_onboarded: false,
+      is_onboarded: true,
       profile: {
         id: 'prof_' + userId,
         user_id: userId,
         full_name: fullName,
+        firstName: newUserRecord.firstName,
+        lastName: newUserRecord.lastName,
         academic_stage: stage,
-        institution: '',
-        department: '',
-        graduation_year: 2027,
-        cgpa: 0,
-        target_role: '',
-        is_onboarded: false,
-        readiness_score: 72.0,
+        academicStage: stage,
+        institution: newUserRecord.institution,
+        institutionName: newUserRecord.institution,
+        department: newUserRecord.department,
+        branch: newUserRecord.department,
+        graduation_year: 2028,
+        graduationYear: 2028,
+        cgpa: 9.0,
+        target_role: targetRole,
+        targetRole: targetRole,
+        is_onboarded: true,
+        readiness_score: initialScore,
+        readinessScore: initialScore,
         backlogs: 0
       }
     };
 
-    localStorage.setItem('nexgenai_user', JSON.stringify(mockUser));
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + btoa(JSON.stringify({ sub: userId, role })) + '.signature';
+    localStorage.setItem('nexgenai_user', JSON.stringify(sessionUser));
     localStorage.setItem('nexgenai_token', token);
 
     return {
@@ -75,41 +296,80 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       data: {
         access_token: token,
         token_type: 'bearer',
-        user: mockUser
+        user: sessionUser
       }
     };
   }
 
   // 2. Auth: Login
   if (endpoint.includes('/auth/login')) {
-    const email = body.email || '';
-    let stored = getStoredUser();
+    const email = (body.email || '').trim().toLowerCase();
+    const password = body.password || '';
 
-    const user = (stored && stored.email === email) ? stored : {
-      id: 'usr_' + Math.random().toString(36).substring(2, 9),
-      email,
-      role: 'STUDENT',
-      full_name: email ? email.split('@')[0] : 'Student',
-      academic_stage: 'CLASS_11',
-      is_onboarded: false,
+    if (!email || !password) {
+      return {
+        success: false,
+        error: 'Please enter both email and password.'
+      };
+    }
+
+    const users = getRegisteredUsers();
+    const userRecord = users.find(u => u.email.toLowerCase() === email);
+
+    if (!userRecord) {
+      return {
+        success: false,
+        error: `No account found with email "${email}". Please register an account or select one of the verified demo personas below.`
+      };
+    }
+
+    if (userRecord.password && userRecord.password !== password) {
+      return {
+        success: false,
+        error: 'Incorrect password. Please verify your credentials and try again.'
+      };
+    }
+
+    const fullName = userRecord.full_name || `${userRecord.firstName || ''} ${userRecord.lastName || ''}`.trim() || 'Student';
+    const parts = fullName.split(' ');
+    const firstName = userRecord.firstName || parts[0] || fullName;
+    const lastName = userRecord.lastName || parts.slice(1).join(' ') || '';
+
+    const sessionUser = {
+      id: userRecord.id,
+      email: userRecord.email,
+      role: userRecord.role || 'STUDENT',
+      firstName,
+      lastName,
+      full_name: fullName,
+      academic_stage: userRecord.academic_stage || 'CLASS_11',
+      is_onboarded: true,
       profile: {
-        id: 'prof_active',
-        user_id: 'usr_active',
-        full_name: email ? email.split('@')[0] : 'Student',
-        academic_stage: 'CLASS_11',
-        institution: '',
-        department: '',
-        graduation_year: 2027,
-        cgpa: 0,
-        target_role: '',
-        is_onboarded: false,
-        readiness_score: 72.0,
+        id: 'prof_' + userRecord.id,
+        user_id: userRecord.id,
+        full_name: fullName,
+        firstName,
+        lastName,
+        academic_stage: userRecord.academic_stage || 'CLASS_11',
+        academicStage: userRecord.academic_stage || 'CLASS_11',
+        institution: userRecord.institution || 'National Institute of Technology',
+        institutionName: userRecord.institution || 'National Institute of Technology',
+        department: userRecord.department || 'Computer Science & Engineering',
+        branch: userRecord.department || 'Computer Science & Engineering',
+        graduation_year: userRecord.graduation_year || 2027,
+        graduationYear: userRecord.graduation_year || 2027,
+        cgpa: userRecord.cgpa || 8.5,
+        target_role: userRecord.target_role || 'Software Engineering & AI',
+        targetRole: userRecord.target_role || 'Software Engineering & AI',
+        is_onboarded: true,
+        readiness_score: userRecord.readiness_score || 72.0,
+        readinessScore: userRecord.readiness_score || 72.0,
         backlogs: 0
       }
     };
 
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + btoa(JSON.stringify({ sub: user.id, role: user.role })) + '.signature';
-    localStorage.setItem('nexgenai_user', JSON.stringify(user));
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' + btoa(JSON.stringify({ sub: sessionUser.id, role: sessionUser.role })) + '.signature';
+    localStorage.setItem('nexgenai_user', JSON.stringify(sessionUser));
     localStorage.setItem('nexgenai_token', token);
 
     return {
@@ -117,7 +377,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       data: {
         access_token: token,
         token_type: 'bearer',
-        user
+        user: sessionUser
       }
     };
   }
@@ -143,47 +403,74 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       department: body.branch || body.department || user.profile?.department,
       graduation_year: body.graduationYear || body.graduation_year || user.profile?.graduation_year,
       cgpa: body.cgpa || user.profile?.cgpa,
-      readiness_score: 72.0
+      readiness_score: user.profile?.readiness_score || 72.0
     };
     user.is_onboarded = true;
     localStorage.setItem('nexgenai_user', JSON.stringify(user));
+    saveRegisteredUser(user);
 
     return { success: true, data: { user, status: 'SUCCESS' } };
   }
 
-  // 5. Passport
+  // 5. Passport (Stage-aware)
   if (endpoint.includes('/passport')) {
     const user: any = getStoredUser() || {};
+    const stage = user?.profile?.academicStage || user?.academic_stage || 'CLASS_11';
+    const isClass11 = stage === 'CLASS_11';
+    const isClass12 = stage === 'CLASS_12';
+    const isYear4 = stage === 'YEAR_4';
+
+    const defaultSkills = isClass11 ? [
+      { id: 'sk-1', name: 'Computational Thinking', status: 'VERIFIED', verified: true, level: 'Foundational', evidenceCount: 2 },
+      { id: 'sk-2', name: 'Algorithmic Decomposition', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 2 },
+      { id: 'sk-3', name: 'Python Basics & Logic Gates', status: 'VERIFIED', verified: true, level: 'Foundational', evidenceCount: 1 },
+      { id: 'sk-4', name: 'Binary Data Representation', status: 'CLAIMED', verified: false, level: 'Beginner', evidenceCount: 0 }
+    ] : [
+      { id: 'sk-1', name: 'Python Engineering', status: 'VERIFIED', verified: true, level: 'Advanced', evidenceCount: 4 },
+      { id: 'sk-2', name: 'FastAPI Microservices', status: 'VERIFIED', verified: true, level: 'Advanced', evidenceCount: 3 },
+      { id: 'sk-3', name: 'System Design & Scalability', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 3 },
+      { id: 'sk-4', name: 'Cloud & Docker Containers', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 2 }
+    ];
+
+    const defaultProjects = isClass11 ? [
+      { id: 'pr-1', title: 'Interactive Algorithmic Logic Sandbox', status: 'COMPLETED', completed: true, role: 'Creator', stars: 16, techStack: ['Python', 'Logic Gates'] }
+    ] : [
+      { id: 'pr-1', title: 'High-Throughput Distributed Cache', status: 'COMPLETED', completed: true, role: 'Lead Architect', stars: 42, techStack: ['Python', 'Redis', 'Docker'] },
+      { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', status: 'COMPLETED', completed: true, role: 'Security Engineer', stars: 28, techStack: ['Python', 'Elasticsearch', 'Splunk'] }
+    ];
+
     const passportData = {
       profile: user.profile || {
         full_name: user.full_name || 'Dheeraj Muley',
-        academic_stage: user.academic_stage || 'CLASS_11',
+        academic_stage: stage,
         institution: 'National Institute of Technology',
-        target_role: 'Full Stack Engineer',
-        cgpa: 8.5
+        target_role: 'Software Engineering & AI',
+        cgpa: 9.0
       },
       readiness: {
-        overallScore: user.profile?.readiness_score || 72.0,
-        foundations: 85,
-        domainSpecialization: 78,
-        practicalProof: 70,
-        industryReadiness: 68
+        overallScore: user.profile?.readiness_score || (isClass11 ? 72.0 : (isClass12 ? 68.0 : (isYear4 ? 92.0 : 78.0))),
+        foundations: isClass11 ? 90 : 85,
+        domainSpecialization: isClass11 ? 65 : 82,
+        practicalProof: isClass11 ? 70 : 80,
+        industryReadiness: isClass11 ? 62 : 90
       },
-      skills: [
-        { id: 'sk-1', name: 'Python Engineering', verified: true, level: 'Advanced', evidenceCount: 3 },
-        { id: 'sk-2', name: 'System Design', verified: true, level: 'Intermediate', evidenceCount: 2 },
-        { id: 'sk-3', name: 'Cloud & Docker', verified: true, level: 'Intermediate', evidenceCount: 2 },
-        { id: 'sk-4', name: 'FastAPI Microservices', verified: true, level: 'Advanced', evidenceCount: 4 }
+      skills: defaultSkills,
+      projects: defaultProjects,
+      codingSubmissions: [
+        { id: 'sub-1', problemTitle: 'Optimal Skill Pairing (Two Sum)', status: 'ACCEPTED', passed: true, score: 100 }
       ],
-      projects: [
-        { id: 'pr-1', title: 'High-Throughput Distributed Cache', role: 'Lead Architect', stars: 42, techStack: ['Python', 'Redis', 'Docker'] },
-        { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', role: 'Security Engineer', stars: 28, techStack: ['Python', 'Elasticsearch', 'Splunk'] }
+      socIncidentAttempts: [
+        { incidentTitle: 'SSH Brute-Force Triage', score: 95, status: 'RESOLVED', passed: true }
       ],
-      codingSubmissions: [{ problemTitle: 'Two Sum', passed: true, score: 100 }],
-      socIncidentAttempts: [{ incidentTitle: 'SSH Brute-Force Triage', score: 95 }],
-      systemDesignDiagrams: [{ title: 'Scalable URL Shortener Architecture', approved: true }],
-      resumes: [{ ats_score: 88, filename: 'NexGen_Resume_Master.pdf' }],
-      offers: []
+      systemDesignDiagrams: [
+        { title: 'Scalable URL Shortener Architecture', approved: true, score: 92 }
+      ],
+      resumes: [
+        { ats_score: 88, filename: 'NexGen_Master_Resume.pdf' }
+      ],
+      offers: isYear4 ? [
+        { company: 'NextGen Cloud Technologies', role: 'Software Engineer - AI Platforms', ctc: '18 LPA', status: 'OFFER_EXTENDED' }
+      ] : []
     };
 
     return { success: true, data: { passport: passportData } };
@@ -202,7 +489,13 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
   if (endpoint.includes('/courses/') || endpoint.includes('/learning/courses/')) {
     const parts = endpoint.split(/\/courses\//);
     const slug = parts[1]?.split('?')[0]?.split('/')[0];
-    const found = MOCK_COURSES.find(c => c.slug === slug) || MOCK_COURSES[0];
+    let found = MOCK_COURSES.find(c => c.slug === slug);
+    if (!found) {
+      if (slug === 'career-discovery-101') {
+        found = MOCK_COURSES.find(c => c.slug === 'comp-thinking-11');
+      }
+    }
+    if (!found) found = MOCK_COURSES[0];
     return {
       success: true,
       data: {
@@ -410,6 +703,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
         user.academic_stage = body.stage || user.academic_stage;
         if (user.profile) user.profile.academic_stage = user.academic_stage;
         localStorage.setItem('nexgenai_user', JSON.stringify(user));
+        saveRegisteredUser(user);
       }
       return { success: true, data: { status: 'SUCCESS' } };
     }
@@ -503,7 +797,6 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     };
   }
 
-  // Default successful empty response
   return { success: true, data: { status: 'OK' } };
 }
 
@@ -538,20 +831,16 @@ export async function apiRequest<T = any>(
       }
     }
 
-    // 1. Detect Vercel static host 405 Method Not Allowed, or HTML 404/500 pages
-    // On Vercel, static index.html cannot respond to POST/PUT/DELETE, returning HTTP 405
     if (res.status === 405 || (res.status === 404 && !data) || res.status >= 502) {
-      console.warn(`[NexGenAI Resilience] Received HTTP ${res.status} from static host for ${endpoint}. Seamlessly serving via client-side mock store.`);
+      console.warn(`[NexGenAI Resilience] Serving client-side store for ${endpoint}`);
       return handleMockRequest(endpoint, options);
     }
 
-    // 2. If non-JSON text response was returned
     if (!data) {
       const text = await res.text().catch(() => '');
       if (!res.ok) {
-        // If it looks like an HTML error or unreachable host, gracefully fallback
         if (text.includes('The page could not be found') || text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
-          console.warn(`[NexGenAI Resilience] HTML error returned for ${endpoint}. Activating client-side fallback.`);
+          console.warn(`[NexGenAI Resilience] Serving client fallback for ${endpoint}`);
           return handleMockRequest(endpoint, options);
         }
         return { success: false, error: `Server returned error (${res.status})` };
@@ -559,7 +848,6 @@ export async function apiRequest<T = any>(
       return { success: true, data: text as any };
     }
 
-    // 3. Real server business error (e.g. 400 Bad Request, 401 Unauthorized)
     if (!res.ok) {
       if (res.status === 401 && !endpoint.includes('/auth/login') && !endpoint.includes('/auth/signup') && !endpoint.includes('/auth/register')) {
         localStorage.removeItem('nexgenai_token');
@@ -570,8 +858,7 @@ export async function apiRequest<T = any>(
 
     return { success: true, data };
   } catch (err: any) {
-    // If backend is completely offline (ECONNREFUSED or Network Failure on Vercel preview)
-    console.warn(`[NexGenAI Resilience] Network error connecting to ${endpoint}. Seamlessly activating offline engine:`, err?.message);
+    console.warn(`[NexGenAI Resilience] Offline fallback for ${endpoint}:`, err?.message);
     return handleMockRequest(endpoint, options);
   }
 }

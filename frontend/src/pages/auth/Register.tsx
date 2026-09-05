@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Sparkles, ArrowRight, Lock, Mail, User, GraduationCap, AlertCircle, Building, Briefcase } from 'lucide-react';
+import { Sparkles, ArrowRight, Lock, Mail, User, GraduationCap, AlertCircle, Building, Briefcase, Target } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Register: React.FC = () => {
@@ -16,12 +16,18 @@ export const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'STUDENT' | 'TPO' | 'RECRUITER'>('STUDENT');
   const [academicStage, setAcademicStage] = useState(initialStage);
+  const [targetRole, setTargetRole] = useState('Software Engineering & AI Foundations');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!firstName.trim() || !lastName.trim()) {
+      setError('Please provide both first and last name.');
+      return;
+    }
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters long.');
@@ -32,15 +38,17 @@ export const Register: React.FC = () => {
     const res = await register({
       email,
       password,
-      firstName,
-      lastName,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      full_name: `${firstName.trim()} ${lastName.trim()}`,
       role,
       academicStage: role === 'STUDENT' ? academicStage : 'YEAR_4',
+      targetRole: targetRole.trim() || 'Software Engineering',
     });
     setIsSubmitting(false);
 
     if (res.success) {
-      navigate('/onboarding');
+      navigate('/dashboard');
     } else {
       setError(res.error || 'Registration failed');
     }
@@ -50,30 +58,30 @@ export const Register: React.FC = () => {
     <div className="min-h-screen bg-[#07090e] flex flex-col justify-center items-center px-4 py-12">
       <div className="w-full max-w-lg">
         {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2.5 mb-4">
+        <div className="text-center mb-6">
+          <Link to="/" className="inline-flex items-center space-x-2.5 mb-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-purple flex items-center justify-center shadow-lg shadow-brand-500/25">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <span className="text-xl font-bold tracking-tight text-white">NexGenAI</span>
           </Link>
           <h1 className="text-2xl font-bold text-white tracking-tight">Create your NexGenAI Account</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            One passport. One skill graph. Complete guidance from Class 11 to your career.
+          <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            One passport. One skill graph. Complete guidance from Class 11 all the way to Tier-1 placement.
           </p>
         </div>
 
         {/* Card */}
-        <div className="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl">
+        <div className="glass-panel rounded-2xl p-6 sm:p-8 shadow-2xl border border-slate-800">
           {error && (
-            <div className="mb-5 flex items-center space-x-2 p-3 rounded-lg bg-rose-950/50 border border-rose-800/60 text-rose-300 text-xs">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <div className="mb-5 flex items-center space-x-2.5 p-3 rounded-xl bg-rose-950/60 border border-rose-800/80 text-rose-300 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-400" />
               <span>{error}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
-            {/* Decoy hidden inputs to prevent greedy browser password managers from auto-populating saved credentials */}
+            {/* Decoy hidden inputs */}
             <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} aria-hidden="true">
               <input type="text" name="decoy_user" tabIndex={-1} autoComplete="off" />
               <input type="password" name="decoy_pass" tabIndex={-1} autoComplete="off" />
@@ -137,8 +145,8 @@ export const Register: React.FC = () => {
                     autoComplete="off"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder=""
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
+                    placeholder="e.g. Dheeraj"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
                   />
                 </div>
               </div>
@@ -151,8 +159,8 @@ export const Register: React.FC = () => {
                   autoComplete="off"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder=""
-                  className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
+                  placeholder="e.g. Muley"
+                  className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -169,8 +177,8 @@ export const Register: React.FC = () => {
                   autoComplete="new-password"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder=""
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
+                  placeholder="name@school.edu or name@gmail.com"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -179,11 +187,20 @@ export const Register: React.FC = () => {
             {role === 'STUDENT' && (
               <div>
                 <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                  Current Academic Stage (Journey Starting Point)
+                  Academic Stage (Journey Starting Point)
                 </label>
                 <select
                   value={academicStage}
-                  onChange={(e) => setAcademicStage(e.target.value)}
+                  onChange={(e) => {
+                    const st = e.target.value;
+                    setAcademicStage(st);
+                    if (st === 'CLASS_11') setTargetRole('Software Engineering & AI Foundations');
+                    else if (st === 'CLASS_12') setTargetRole('Web & Systems Engineering');
+                    else if (st === 'YEAR_1') setTargetRole('Full Stack Web Developer');
+                    else if (st === 'YEAR_2') setTargetRole('Cloud & Distributed Systems');
+                    else if (st === 'YEAR_3') setTargetRole('SDE & System Architecture');
+                    else if (st === 'YEAR_4') setTargetRole('SDE-1 / Graduate Cloud Engineer');
+                  }}
                   className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 >
                   <option value="CLASS_11">Class 11 (Career Discovery & Aptitude)</option>
@@ -196,11 +213,26 @@ export const Register: React.FC = () => {
                   <option value="PLACEMENT">Actively in Campus Placements</option>
                   <option value="CAREER">First Job & Early Career Growth</option>
                 </select>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  NexGenAI adapts your curriculum, challenges, and AI Mentor based on your stage.
-                </p>
               </div>
             )}
+
+            {/* Target Role */}
+            <div>
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                Target Role / Aspiring Career Track
+              </label>
+              <div className="relative">
+                <Target className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                <input
+                  type="text"
+                  name="nexgen_target_role"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  placeholder="e.g. Software Engineering, AI Engineer, Cybersecurity"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                />
+              </div>
+            </div>
 
             {/* Password */}
             <div>
@@ -214,8 +246,8 @@ export const Register: React.FC = () => {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder=""
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
+                  placeholder="At least 6 characters"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
                 />
               </div>
             </div>
@@ -225,7 +257,7 @@ export const Register: React.FC = () => {
               disabled={isSubmitting}
               className="w-full mt-3 py-2.5 px-4 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold shadow-lg shadow-brand-600/30 flex items-center justify-center space-x-2 transition disabled:opacity-50"
             >
-              <span>{isSubmitting ? 'Creating Account...' : 'Start Campus→Career Journey'}</span>
+              <span>{isSubmitting ? 'Creating Secure Account...' : 'Start Campus→Career Journey'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -233,7 +265,7 @@ export const Register: React.FC = () => {
           <div className="mt-6 pt-5 border-t border-slate-800 text-center">
             <p className="text-xs text-slate-400">
               Already have an account?{' '}
-              <Link to="/login" className="text-brand-400 hover:text-brand-300 font-semibold">
+              <Link to="/login" className="text-brand-400 hover:text-brand-300 font-semibold underline">
                 Sign in here
               </Link>
             </p>

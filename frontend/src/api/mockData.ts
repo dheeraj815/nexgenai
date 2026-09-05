@@ -64,6 +64,70 @@ export const CANONICAL_DOMAINS = [
 
 export const MOCK_COURSES = [
   {
+    id: 'c-101',
+    title: 'Class 11: Tech Exploration & Career Discovery',
+    slug: 'career-discovery-101',
+    stage: 'CLASS_11',
+    description: 'Explore 30 technology domains, algorithmic logic, and early digital architecture tailored for high school foundations.',
+    lessons_count: 8,
+    progress: 25,
+    category: 'Foundations',
+    instructor: 'Prof. Arvind Sharma',
+    estimated_hours: 14,
+    modules: [
+      {
+        id: 'mod-1',
+        title: 'Algorithmic Logic & Decomposition',
+        order_num: 1,
+        description: 'Understand how complex computational problems are broken down into logical sub-routines.',
+        lessons: [
+          {
+            id: 'les-1-1',
+            title: 'Deconstructing Problems Into Computational Logic',
+            orderIndex: 1,
+            order_num: 1,
+            estimatedMinutes: 15,
+            duration_mins: 15,
+            isCompleted: true,
+            progress: [{ isCompleted: true }],
+            contentText: `# Introduction to Algorithmic Deconstruction
+
+Computational thinking is the mental process for decomposing problems into smaller, manageable components that an automated system can execute.
+
+### The Four Pillars of Computational Thinking
+
+1. **Decomposition**: Breaking down a complex problem or system into smaller, more manageable parts.
+2. **Pattern Recognition**: Looking for similarities among and within problems to find repeatable templates.
+3. **Abstraction**: Focusing on the important information only, ignoring irrelevant details.
+4. **Algorithm Design**: Developing a step-by-step solution to the problem or the rules to follow.
+
+### Practical Example: Binary Search Logic
+
+When searching for a key in a sorted sequence, linear scanning inspects each item sequentially: O(N). By repeatedly dividing the search interval in half, binary search completes in logarithmic time: O(log N).
+
+\`\`\`python
+def binary_search(arr, target):
+    low = 0
+    high = len(arr) - 1
+    while low <= high:
+        mid = (low + high) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            low = mid + 1
+        else:
+            high = mid - 1
+    return -1
+\`\`\`
+
+Every software system from relational databases to modern operating system kernels relies on these core algorithmic principles.`
+          }
+        ]
+      }
+    ]
+  },
+
+  {
     id: 'c-1',
     title: 'Computational Thinking & Tech Exploration',
     slug: 'comp-thinking-11',

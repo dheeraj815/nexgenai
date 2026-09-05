@@ -57,7 +57,7 @@ export const Dashboard: React.FC = () => {
       title: 'Class 11: Career Discovery & Logic',
       subtitle: 'Explore 30 technology domains, find your aptitude, and write your first logic code.',
       action: 'Start Career Discovery Course',
-      link: '/courses/career-discovery-101',
+      link: '/courses/comp-thinking-11',
     },
     CLASS_12: {
       title: 'Class 12: Career Direction & Pathways',
@@ -126,7 +126,7 @@ export const Dashboard: React.FC = () => {
               <span>{currentStageInfo.title}</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Welcome, {user?.firstName || 'Candidate'}
+              Welcome, {user?.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : 'Candidate'}
             </h1>
             <p className="text-sm text-slate-400 mt-1 max-w-2xl leading-relaxed">
               {currentStageInfo.subtitle}
@@ -319,15 +319,15 @@ export const Dashboard: React.FC = () => {
               </div>
               <div className="flex justify-between items-center p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
                 <span className="text-slate-400">Verified Skills</span>
-                <span className="text-emerald-400 font-semibold">{passport?.skills?.filter((s: any) => s.status === 'VERIFIED').length || 0}</span>
+                <span className="text-emerald-400 font-semibold">{passport?.skills?.filter((s: any) => s.status === 'VERIFIED' || s.verified === true).length || 0}</span>
               </div>
               <div className="flex justify-between items-center p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
                 <span className="text-slate-400">Completed Projects</span>
-                <span className="text-white font-semibold">{passport?.projects?.filter((p: any) => p.status === 'COMPLETED').length || 0}</span>
+                <span className="text-white font-semibold">{passport?.projects?.filter((p: any) => p.status === 'COMPLETED' || p.completed === true || p.id).length || 0}</span>
               </div>
               <div className="flex justify-between items-center p-2.5 rounded-lg bg-slate-900/60 border border-slate-800/80 text-xs">
                 <span className="text-slate-400">Coding Lab Solved</span>
-                <span className="text-white font-semibold">{passport?.codingSubmissions?.filter((c: any) => c.status === 'ACCEPTED').length || 0}</span>
+                <span className="text-white font-semibold">{passport?.codingSubmissions?.filter((c: any) => c.status === 'ACCEPTED' || c.passed === true).length || 0}</span>
               </div>
             </div>
           </div>
