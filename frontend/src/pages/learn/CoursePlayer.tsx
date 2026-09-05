@@ -24,22 +24,37 @@ export const CoursePlayer: React.FC = () => {
     if (!slug) return;
     const res = await apiRequest(`/learning/courses/${slug}`);
     if (res.success && res.data) {
-      const c = res.data.course;
-      setCourse(c);
-
-      // Default active lesson to first uncompleted or first overall
-      let firstLesson = null;
-      for (const m of c.modules || []) {
-        for (const l of m.lessons || []) {
-          if (!firstLesson) firstLesson = l;
-          const isDone = l.progress && l.progress.length > 0 && l.progress[0].isCompleted;
-          if (!isDone) {
-            setActiveLesson(l);
-            return;
+      const c = res.data.course || (res.data.id ? res.data : null);
+      if (c) {
+        // Normalize lessons to support both frontend and backend properties
+        if (c.modules) {
+          for (const m of c.modules) {
+            if (m.lessons) {
+              for (const l of m.lessons) {
+                l.contentText = l.contentText || l.content || '';
+                l.content = l.content || l.contentText;
+                l.estimatedMinutes = l.estimatedMinutes || l.duration_mins || 15;
+                l.orderIndex = l.orderIndex || l.order_num || 1;
+              }
+            }
           }
         }
+        setCourse(c);
+
+        // Default active lesson to first uncompleted or first overall
+        let firstLesson = null;
+        for (const m of c.modules || []) {
+          for (const l of m.lessons || []) {
+            if (!firstLesson) firstLesson = l;
+            const isDone = (l.progress && l.progress.length > 0 && l.progress[0].isCompleted) || l.isCompleted || l.is_completed;
+            if (!isDone) {
+              setActiveLesson(l);
+              return;
+            }
+          }
+        }
+        setActiveLesson(firstLesson);
       }
-      setActiveLesson(firstLesson);
     }
   };
 
@@ -72,7 +87,7 @@ export const CoursePlayer: React.FC = () => {
     );
   }
 
-  const isCurrentCompleted = activeLesson?.progress && activeLesson.progress.length > 0 && activeLesson.progress[0].isCompleted;
+  const isCurrentCompleted = (activeLesson?.progress && activeLesson.progress.length > 0 && activeLesson.progress[0].isCompleted) || activeLesson?.isCompleted || activeLesson?.is_completed;
 
   return (
     <div className="space-y-6">
@@ -87,7 +102,7 @@ export const CoursePlayer: React.FC = () => {
         </div>
 
         {activeLesson && (
-          <VoiceControls textToRead={activeLesson.contentText} />
+          <VoiceControls textToRead={activeLesson.contentText || activeLesson.content || ''} />
         )}
       </div>
 
@@ -160,7 +175,7 @@ export const CoursePlayer: React.FC = () => {
 
               {/* Rich Lesson Body */}
               <div className="prose prose-invert max-w-none text-slate-300 text-sm leading-relaxed space-y-4">
-                {activeLesson.contentText.split('\n\n').map((paragraph: string, pIdx: number) => {
+                {(activeLesson.contentText || activeLesson.content || '').split('\n\n').map((paragraph: string, pIdx: number) => {
                   if (paragraph.startsWith('# ')) {
                     return <h2 key={pIdx} className="text-xl font-bold text-white mt-4 mb-2">{paragraph.replace('# ', '')}</h2>;
                   }

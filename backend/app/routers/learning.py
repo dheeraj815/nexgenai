@@ -26,6 +26,21 @@ def list_courses(stage: str = None, domain_id: str = None, db: Session = Depends
         "total_modules": len(c.modules)
     } for c in courses]
 
+@router.get("/domains")
+def list_learning_domains(db: Session = Depends(get_db)):
+    from backend.app.models.entities import Domain
+    domains = db.query(Domain).filter(Domain.is_active == True).all()
+    domain_list = [{
+        "id": d.id,
+        "name": d.name,
+        "slug": d.slug,
+        "category": d.category,
+        "description": d.description,
+        "icon": d.icon,
+        "skills_count": len(d.skills)
+    } for d in domains]
+    return {"domains": domain_list}
+
 @router.get("/courses/{slug}")
 def get_course_detail(slug: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     course = db.query(Course).filter(Course.slug == slug).first()
@@ -40,13 +55,19 @@ def get_course_detail(slug: str, current_user: User = Depends(get_current_user),
                 LessonProgress.user_id == current_user.id,
                 LessonProgress.lesson_id == l.id
             ).first()
+            is_done = prog.is_completed if prog else False
             lessons_data.append({
                 "id": l.id,
                 "title": l.title,
                 "order_num": l.order_num,
+                "orderIndex": l.order_num,
                 "content": l.content,
+                "contentText": l.content,
                 "duration_mins": l.duration_mins,
-                "is_completed": prog.is_completed if prog else False
+                "estimatedMinutes": l.duration_mins,
+                "is_completed": is_done,
+                "isCompleted": is_done,
+                "progress": [{"isCompleted": is_done}] if is_done else []
             })
         modules_data.append({
             "id": m.id,
@@ -55,7 +76,7 @@ def get_course_detail(slug: str, current_user: User = Depends(get_current_user),
             "description": m.description,
             "lessons": lessons_data
         })
-    return {
+    course_data = {
         "id": course.id,
         "title": course.title,
         "slug": course.slug,
@@ -64,6 +85,10 @@ def get_course_detail(slug: str, current_user: User = Depends(get_current_user),
         "instructor": course.instructor,
         "estimated_hours": course.estimated_hours,
         "modules": modules_data
+    }
+    return {
+        "course": course_data,
+        **course_data
     }
 
 @router.post("/lessons/{lesson_id}/complete")
