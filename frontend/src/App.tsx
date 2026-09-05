@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { VoiceProvider } from './context/VoiceContext';
 import { NotificationProvider } from './context/NotificationContext';
+import { CareerJourneyProvider } from './context/CareerJourneyContext';
 
 import { AppLayout } from './components/layout/AppLayout';
 import { LandingPage } from './pages/LandingPage';
@@ -154,14 +155,16 @@ export const AppRoutes: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <VoiceProvider>
-        <NotificationProvider>
-          <Router>
-            <AppRoutes />
-          </Router>
-        </NotificationProvider>
-      </VoiceProvider>
-    </AuthProvider>
+    <CareerJourneyProvider>
+      <AuthProvider>
+        <VoiceProvider>
+          <NotificationProvider>
+            <Router>
+              <AppRoutes />
+            </Router>
+          </NotificationProvider>
+        </VoiceProvider>
+      </AuthProvider>
+    </CareerJourneyProvider>
   );
 }

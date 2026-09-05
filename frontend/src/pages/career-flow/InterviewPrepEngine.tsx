@@ -6,8 +6,10 @@ import {
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
+import { useCareerJourney } from '../../context/CareerJourneyContext';
 
 export const InterviewPrepEngine: React.FC = () => {
+  const { recordMockInterview } = useCareerJourney();
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isSpeakingQuestion, setIsSpeakingQuestion] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
@@ -122,6 +124,8 @@ export const InterviewPrepEngine: React.FC = () => {
       confidence,
       feedback
     });
+
+    recordMockInterview(accuracy, feedback);
   };
 
   return (
