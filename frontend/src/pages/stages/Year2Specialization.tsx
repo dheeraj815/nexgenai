@@ -9,7 +9,7 @@ import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDra
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
-import { DEEP_CURRICULUM_DATABASE } from '../../data/curriculumData';
+import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
 
 interface SocAlert {
   id: string;
@@ -31,7 +31,7 @@ export const Year2Specialization: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'tracks' | 'curriculum' | 'soc' | 'certs' | 'prep'>('tracks');
   const [selectedTrack, setSelectedTrack] = useState<'ai' | 'web' | 'cyber' | 'cloud'>('ai');
-  const [activeDeepTopic, setActiveDeepTopic] = useState<boolean>(false);
+  const [activeDeepTopicMeta, setActiveDeepTopicMeta] = useState<{ id: string; title: string; domain: string } | null>(null);
 
   // SOC Simulator State
   const [alerts, setAlerts] = useState<SocAlert[]>([
@@ -171,7 +171,7 @@ export const Year2Specialization: React.FC = () => {
               key={tab.id}
               onClick={() => {
                 setActiveTab(tab.id as any);
-                setActiveDeepTopic(false);
+                setActiveDeepTopicMeta(null);
               }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 isActive 
@@ -271,17 +271,17 @@ export const Year2Specialization: React.FC = () => {
       {/* TAB 2: DEEP CURRICULUM */}
       {activeTab === 'curriculum' && (
         <div className="space-y-6">
-          {activeDeepTopic ? (
+          {activeDeepTopicMeta ? (
             <div className="space-y-4">
               <button
-                onClick={() => setActiveDeepTopic(false)}
+                onClick={() => setActiveDeepTopicMeta(null)}
                 className="text-xs font-bold text-cyan-400 hover:text-cyan-300"
               >
                 ← Back to Curriculum Modules
               </button>
               <DeepTopicPlayer 
-                topic={DEEP_CURRICULUM_DATABASE['py-variables']}
-                onNextTopic={() => setActiveDeepTopic(false)}
+                topic={getCurriculumTopic(activeDeepTopicMeta.id, activeDeepTopicMeta.title, activeDeepTopicMeta.domain, 'YEAR_2')}
+                onNextTopic={() => setActiveDeepTopicMeta(null)}
               />
             </div>
           ) : (
@@ -295,7 +295,11 @@ export const Year2Specialization: React.FC = () => {
                   <p className="text-slate-400 text-xs">Click any topic to launch the interactive 16-step code execution player.</p>
                 </div>
                 <button
-                  onClick={() => setActiveDeepTopic(true)}
+                  onClick={() => setActiveDeepTopicMeta({ 
+                    id: selectedTrack === 'cyber' ? 'soc-incident-triage' : selectedTrack === 'cloud' ? 'y2-cloud-docker' : `y2-${selectedTrack}-architecture`, 
+                    title: `${current.name} Architecture & Core Systems`, 
+                    domain: current.name 
+                  })}
                   className="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-1.5"
                 >
                   <Play className="w-3.5 h-3.5" />
@@ -305,16 +309,20 @@ export const Year2Specialization: React.FC = () => {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
                 {[
-                  '1. Architecture Design & Constraints',
-                  '2. High-Throughput Concurrency',
-                  '3. Production Data Persistence',
-                  '4. State Caching & Eviction',
-                  '5. Security Hardening & Zero-Trust',
-                  '6. Automated Unit & Stress Tests'
+                  'Architecture Design & Constraints',
+                  'High-Throughput Concurrency',
+                  'Production Data Persistence',
+                  'State Caching & Eviction',
+                  'Security Hardening & Zero-Trust',
+                  'Automated Unit & Stress Tests'
                 ].map(mod => (
                   <div
                     key={mod}
-                    onClick={() => setActiveDeepTopic(true)}
+                    onClick={() => setActiveDeepTopicMeta({ 
+                      id: `y2-${selectedTrack}-${mod.toLowerCase().replace(/[^a-z0-9]/g, '-')}`, 
+                      title: `${current.name}: ${mod}`, 
+                      domain: current.name 
+                    })}
                     className="p-4 bg-slate-950 border border-slate-800 hover:border-cyan-500/50 rounded-xl cursor-pointer transition-all flex items-center justify-between"
                   >
                     <span className="text-xs font-semibold text-slate-200">{mod}</span>

@@ -9,7 +9,7 @@ import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDra
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
-import { DEEP_CURRICULUM_DATABASE } from '../../data/curriculumData';
+import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
 
 export const Year1Foundation: React.FC = () => {
   const { 
@@ -24,7 +24,7 @@ export const Year1Foundation: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'languages' | 'cs' | 'projects' | 'arena' | 'career'>('languages');
   const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'java' | 'cpp'>('python');
-  const [activeDeepTopic, setActiveDeepTopic] = useState<boolean>(false);
+  const [activeDeepTopicMeta, setActiveDeepTopicMeta] = useState<{ id: string; title: string; domain: string } | null>(null);
 
   // Coding Arena State
   const [selectedProblemId, setSelectedProblemId] = useState<string>('p-1');
@@ -164,7 +164,7 @@ export const Year1Foundation: React.FC = () => {
               key={tab.id}
               onClick={() => {
                 setActiveTab(tab.id as any);
-                setActiveDeepTopic(false);
+                setActiveDeepTopicMeta(null);
               }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 isActive 
@@ -182,17 +182,17 @@ export const Year1Foundation: React.FC = () => {
       {/* TAB 1: LANGUAGE MASTERY */}
       {activeTab === 'languages' && (
         <div className="space-y-6">
-          {activeDeepTopic ? (
+          {activeDeepTopicMeta ? (
             <div className="space-y-4">
               <button
-                onClick={() => setActiveDeepTopic(false)}
+                onClick={() => setActiveDeepTopicMeta(null)}
                 className="text-xs font-bold text-emerald-400 hover:text-emerald-300"
               >
                 ← Back to Language Tracks
               </button>
               <DeepTopicPlayer 
-                topic={DEEP_CURRICULUM_DATABASE['py-variables']}
-                onNextTopic={() => setActiveDeepTopic(false)}
+                topic={getCurriculumTopic(activeDeepTopicMeta.id, activeDeepTopicMeta.title, activeDeepTopicMeta.domain, 'YEAR_1')}
+                onNextTopic={() => setActiveDeepTopicMeta(null)}
               />
             </div>
           ) : (
@@ -230,7 +230,7 @@ export const Year1Foundation: React.FC = () => {
                     <p className="text-slate-400 text-xs">Each step represents a verifiable production capability.</p>
                   </div>
                   <button
-                    onClick={() => setActiveDeepTopic(true)}
+                    onClick={() => setActiveDeepTopicMeta({ id: `y1-${selectedLanguage}-oop`, title: `${selectedLanguage.toUpperCase()} Architecture & Object Models`, domain: 'Computer Science Core' })}
                     className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all shadow-md"
                   >
                     <Play className="w-3.5 h-3.5" />
@@ -240,19 +240,19 @@ export const Year1Foundation: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
                   {[
-                    '1. Variables & Dynamic Types',
-                    '2. Conditional Branches & Logic',
-                    '3. Loops & Iterators',
-                    '4. Hash Maps & Dictionaries',
-                    '5. Modular Functions & Scopes',
-                    '6. Object-Oriented Principles',
-                    '7. File I/O & JSON Serialization',
-                    '8. Exception & Error Handling',
-                    '9. REST APIs & Web Scraping'
-                  ].map((topic, i) => (
+                    'Variables & Dynamic Types',
+                    'Conditional Branches & Logic',
+                    'Loops & Iterators',
+                    'Hash Maps & Dictionaries',
+                    'Modular Functions & Scopes',
+                    'Object-Oriented Principles',
+                    'File I/O & JSON Serialization',
+                    'Exception & Error Handling',
+                    'REST APIs & Web Scraping'
+                  ].map((topic) => (
                     <div 
                       key={topic}
-                      onClick={() => setActiveDeepTopic(true)}
+                      onClick={() => setActiveDeepTopicMeta({ id: `y1-${selectedLanguage}-${topic.toLowerCase().replace(/[^a-z0-9]/g, '-')}`, title: `${selectedLanguage.toUpperCase()}: ${topic}`, domain: 'Computer Science Core' })}
                       className="p-3.5 bg-slate-950 border border-slate-800 hover:border-emerald-500/50 rounded-xl cursor-pointer transition-all flex items-center justify-between"
                     >
                       <span className="text-xs font-semibold text-slate-200">{topic}</span>

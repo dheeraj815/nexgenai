@@ -26,11 +26,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'CLASS_11',
     target_role: 'Software Engineering & AI Foundations',
-    readiness_score: 72.0,
-    institution: 'Delhi Public School / Tech High School',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Science & Computer Science',
     graduation_year: 2028,
-    cgpa: 9.4
+    cgpa: 0.0
   },
   {
     id: 'usr_c12',
@@ -42,11 +42,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'CLASS_12',
     target_role: 'Web & Systems Engineering',
-    readiness_score: 68.0,
-    institution: 'Kendriya Vidyalaya / Tech Scholars',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Computer Applications',
     graduation_year: 2027,
-    cgpa: 9.1
+    cgpa: 0.0
   },
   {
     id: 'usr_y1',
@@ -58,11 +58,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'YEAR_1',
     target_role: 'Full Stack Web Developer',
-    readiness_score: 75.0,
-    institution: 'National Institute of Technology',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Computer Science & Engineering',
     graduation_year: 2029,
-    cgpa: 8.9
+    cgpa: 0.0
   },
   {
     id: 'usr_y2',
@@ -74,11 +74,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'YEAR_2',
     target_role: 'Cloud & Distributed Systems',
-    readiness_score: 79.0,
-    institution: 'National Institute of Technology',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Information Technology',
     graduation_year: 2028,
-    cgpa: 8.7
+    cgpa: 0.0
   },
   {
     id: 'usr_y3',
@@ -90,11 +90,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'YEAR_3',
     target_role: 'SDE & System Architecture',
-    readiness_score: 85.0,
-    institution: 'BITS Pilani',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Computer Science',
     graduation_year: 2027,
-    cgpa: 9.2
+    cgpa: 0.0
   },
   {
     id: 'usr_y4',
@@ -106,11 +106,11 @@ export const DEFAULT_SEED_ACCOUNTS = [
     role: 'STUDENT',
     academic_stage: 'YEAR_4',
     target_role: 'SDE-1 / Graduate Cloud Engineer',
-    readiness_score: 92.0,
-    institution: 'Indian Institute of Technology',
+    readiness_score: 0.0,
+    institution: '',
     department: 'Computer Science & Engineering',
     graduation_year: 2026,
-    cgpa: 9.3
+    cgpa: 0.0
   },
   {
     id: 'usr_tpo',

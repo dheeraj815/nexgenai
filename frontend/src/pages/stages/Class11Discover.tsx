@@ -9,7 +9,7 @@ import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDra
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
-import { DEEP_CURRICULUM_DATABASE } from '../../data/curriculumData';
+import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
 
 export const Class11Discover: React.FC = () => {
   const { 
@@ -33,7 +33,7 @@ export const Class11Discover: React.FC = () => {
   const [completedFoundations, setCompletedFoundations] = useState<string[]>([]);
 
   // Tab 3: Domain Exploration State
-  const [activeDeepTopicId, setActiveDeepTopicId] = useState<string | null>(null);
+  const [activeDeepTopicMeta, setActiveDeepTopicMeta] = useState<{ id: string; title: string; domain: string } | null>(null);
 
   // Tab 5: AI Mentor State
   const [mentorInput, setMentorInput] = useState('');
@@ -225,7 +225,7 @@ console.log("Total Payable:", total);`,
               key={tab.id}
               onClick={() => {
                 setActiveTab(tab.id as any);
-                setActiveDeepTopicId(null);
+                setActiveDeepTopicMeta(null);
               }}
               className={`flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 isActive 
@@ -481,17 +481,17 @@ console.log("Total Payable:", total);`,
       {/* TAB 3: DOMAIN EXPLORER & DEEP LABS */}
       {activeTab === 'domains' && (
         <div className="space-y-6">
-          {activeDeepTopicId ? (
+          {activeDeepTopicMeta ? (
             <div className="space-y-4">
               <button 
-                onClick={() => setActiveDeepTopicId(null)}
+                onClick={() => setActiveDeepTopicMeta(null)}
                 className="flex items-center gap-2 text-xs font-bold text-blue-400 hover:text-blue-300"
               >
                 ← Back to All Domain Labs
               </button>
               <DeepTopicPlayer 
-                topic={DEEP_CURRICULUM_DATABASE['py-variables']}
-                onNextTopic={() => setActiveDeepTopicId(null)}
+                topic={getCurriculumTopic(activeDeepTopicMeta.id, activeDeepTopicMeta.title, activeDeepTopicMeta.domain, 'CLASS_11')}
+                onNextTopic={() => setActiveDeepTopicMeta(null)}
               />
             </div>
           ) : (
@@ -508,7 +508,7 @@ console.log("Total Payable:", total);`,
                     domain: 'AI / ML',
                     time: '15 mins',
                     desc: 'Variables, state vectors, and how matrices power large language models.',
-                    topicId: 'py-variables',
+                    topicId: 'c11-ai-intro',
                     color: 'from-purple-900/40 to-slate-900 border-purple-500/30'
                   },
                   {
@@ -516,7 +516,7 @@ console.log("Total Payable:", total);`,
                     domain: 'Web Engineering',
                     time: '18 mins',
                     desc: 'DOM manipulation, HTTP state management, and modern component frameworks.',
-                    topicId: 'py-variables',
+                    topicId: 'c11-web-basics',
                     color: 'from-blue-900/40 to-slate-900 border-blue-500/30'
                   },
                   {
@@ -524,7 +524,7 @@ console.log("Total Payable:", total);`,
                     domain: 'Cyber Defense',
                     time: '20 mins',
                     desc: 'Symmetric vs asymmetric ciphers, packet sniffing, and zero-trust.',
-                    topicId: 'py-variables',
+                    topicId: 'soc-incident-triage',
                     color: 'from-emerald-900/40 to-slate-900 border-emerald-500/30'
                   },
                   {
@@ -532,7 +532,7 @@ console.log("Total Payable:", total);`,
                     domain: 'Cloud / DevOps',
                     time: '25 mins',
                     desc: 'Containerization with Docker, API routing, and distributed state.',
-                    topicId: 'py-variables',
+                    topicId: 'y2-cloud-docker',
                     color: 'from-amber-900/40 to-slate-900 border-amber-500/30'
                   },
                   {
@@ -540,15 +540,23 @@ console.log("Total Payable:", total);`,
                     domain: 'Data Structures',
                     time: '15 mins',
                     desc: 'Stack operations, recursion, and optimal Big-O spacetime complexity.',
-                    topicId: 'py-variables',
+                    topicId: 'dsa-stack',
                     color: 'from-cyan-900/40 to-slate-900 border-cyan-500/30'
+                  },
+                  {
+                    title: 'Python Variables & State Machines',
+                    domain: 'Core Python',
+                    time: '15 mins',
+                    desc: 'Dynamic memory pointers, immutability, and state management.',
+                    topicId: 'py-variables',
+                    color: 'from-indigo-900/40 to-slate-900 border-indigo-500/30'
                   },
                   {
                     title: 'Robotics & Hardware Control',
                     domain: 'IoT / Robotics',
                     time: '20 mins',
                     desc: 'Microcontroller GPIO loops, sensor signal processing, and motor PWM.',
-                    topicId: 'py-variables',
+                    topicId: 'iot-robotics',
                     color: 'from-rose-900/40 to-slate-900 border-rose-500/30'
                   }
                 ].map(lab => (
@@ -568,7 +576,7 @@ console.log("Total Payable:", total);`,
                     </div>
 
                     <button
-                      onClick={() => setActiveDeepTopicId(lab.topicId)}
+                      onClick={() => setActiveDeepTopicMeta({ id: lab.topicId, title: lab.title, domain: lab.domain })}
                       className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-xl transition-all shadow-md"
                     >
                       <Play className="w-3.5 h-3.5" />
