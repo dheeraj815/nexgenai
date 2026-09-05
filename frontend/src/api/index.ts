@@ -62,7 +62,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
 
   // 2. Auth: Login
   if (endpoint.includes('/auth/login')) {
-    const email = body.email || 'student@demo.edu';
+    const email = body.email || '';
     let stored = null;
     try {
       const raw = localStorage.getItem('nexgenai_user');
@@ -70,24 +70,24 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     } catch {}
 
     const user = (stored && stored.email === email) ? stored : {
-      id: 'usr_demo_student',
+      id: 'usr_' + Math.random().toString(36).substring(2, 9),
       email,
       role: 'STUDENT',
-      full_name: email.includes('admin') ? 'Admin User' : (email.includes('tpo') ? 'Dr. TPO Officer' : 'Aditya Sharma'),
-      academic_stage: 'COLLEGE_YEAR_3',
-      is_onboarded: true,
+      full_name: email ? email.split('@')[0] : 'Student',
+      academic_stage: 'COLLEGE_YEAR_1',
+      is_onboarded: false,
       profile: {
-        id: 'prof_demo',
-        user_id: 'usr_demo_student',
-        full_name: 'Aditya Sharma',
-        academic_stage: 'COLLEGE_YEAR_3',
-        institution: 'National Institute of Technology',
-        department: 'Computer Science & Engineering',
+        id: 'prof_active',
+        user_id: 'usr_active',
+        full_name: email ? email.split('@')[0] : 'Student',
+        academic_stage: 'COLLEGE_YEAR_1',
+        institution: '',
+        department: '',
         graduation_year: 2027,
-        cgpa: 8.8,
-        target_role: 'Full Stack Engineer',
-        is_onboarded: true,
-        readiness_score: 78.5,
+        cgpa: 0,
+        target_role: '',
+        is_onboarded: false,
+        readiness_score: 50.0,
         backlogs: 0
       }
     };
@@ -115,28 +115,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     } catch {}
 
     if (!user) {
-      user = {
-        id: 'usr_default',
-        email: 'student@demo.edu',
-        role: 'STUDENT',
-        full_name: 'Aditya Sharma',
-        academic_stage: 'COLLEGE_YEAR_3',
-        is_onboarded: true,
-        profile: {
-          id: 'prof_default',
-          full_name: 'Aditya Sharma',
-          academic_stage: 'COLLEGE_YEAR_3',
-          institution: 'National Institute of Technology',
-          department: 'Computer Science & Engineering',
-          graduation_year: 2027,
-          cgpa: 8.8,
-          target_role: 'Full Stack Engineer',
-          is_onboarded: true,
-          readiness_score: 78.5,
-          backlogs: 0
-        }
-      };
-      localStorage.setItem('nexgenai_user', JSON.stringify(user));
+      return { success: false, error: 'Not authenticated' };
     }
 
     return { success: true, data: user };

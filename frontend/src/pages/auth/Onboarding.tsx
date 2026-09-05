@@ -8,12 +8,12 @@ export const Onboarding: React.FC = () => {
   const navigate = useNavigate();
 
   const [step, setStep] = useState(1);
-  const [targetRole, setTargetRole] = useState('Full Stack Engineer');
-  const [selectedDomains, setSelectedDomains] = useState<string[]>(['software-engineering', 'full-stack-development']);
-  const [institutionName, setInstitutionName] = useState('National Institute of Technology');
-  const [branch, setBranch] = useState('Computer Science & Engineering');
-  const [graduationYear, setGraduationYear] = useState('2026');
-  const [cgpa, setCgpa] = useState('8.5');
+  const [targetRole, setTargetRole] = useState('');
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [institutionName, setInstitutionName] = useState('');
+  const [branch, setBranch] = useState('');
+  const [graduationYear, setGraduationYear] = useState('');
+  const [cgpa, setCgpa] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
@@ -218,7 +218,7 @@ export const Onboarding: React.FC = () => {
                     type="text"
                     value={cgpa}
                     onChange={(e) => setCgpa(e.target.value)}
-                    placeholder="e.g. 8.5"
+                    placeholder=""
                     className="w-full px-3 py-2 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-xs"
                   />
                 </div>
@@ -259,7 +259,7 @@ export const Onboarding: React.FC = () => {
                     type="url"
                     value={githubUrl}
                     onChange={(e) => setGithubUrl(e.target.value)}
-                    placeholder="https://github.com/username"
+                    placeholder=""
                     className="w-full px-3 py-2 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-xs"
                   />
                 </div>
@@ -269,7 +269,7 @@ export const Onboarding: React.FC = () => {
                     type="url"
                     value={linkedinUrl}
                     onChange={(e) => setLinkedinUrl(e.target.value)}
-                    placeholder="https://linkedin.com/in/username"
+                    placeholder=""
                     className="w-full px-3 py-2 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-xs"
                   />
                 </div>

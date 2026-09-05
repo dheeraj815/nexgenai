@@ -72,7 +72,13 @@ export const Register: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+            {/* Decoy hidden inputs to prevent greedy browser password managers from auto-populating saved credentials */}
+            <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} aria-hidden="true">
+              <input type="text" name="decoy_user" tabIndex={-1} autoComplete="off" />
+              <input type="password" name="decoy_pass" tabIndex={-1} autoComplete="off" />
+            </div>
+
             {/* Role Selector */}
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
@@ -127,6 +133,8 @@ export const Register: React.FC = () => {
                   <input
                     type="text"
                     required
+                    name="nexgen_first_name"
+                    autoComplete="off"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder=""
@@ -139,6 +147,8 @@ export const Register: React.FC = () => {
                 <input
                   type="text"
                   required
+                  name="nexgen_last_name"
+                  autoComplete="off"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder=""
@@ -155,6 +165,8 @@ export const Register: React.FC = () => {
                 <input
                   type="email"
                   required
+                  name="nexgen_account_email"
+                  autoComplete="new-password"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder=""
@@ -198,6 +210,8 @@ export const Register: React.FC = () => {
                 <input
                   type="password"
                   required
+                  name="nexgen_account_password"
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder=""

@@ -53,7 +53,13 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
+            {/* Decoy hidden inputs to prevent greedy browser password managers from auto-populating saved credentials */}
+            <div style={{ position: 'absolute', top: -9999, left: -9999, opacity: 0, height: 0, width: 0, pointerEvents: 'none' }} aria-hidden="true">
+              <input type="text" name="decoy_user_login" tabIndex={-1} autoComplete="off" />
+              <input type="password" name="decoy_pass_login" tabIndex={-1} autoComplete="off" />
+            </div>
+
             <div>
               <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Email Address
@@ -63,6 +69,8 @@ export const Login: React.FC = () => {
                 <input
                   type="email"
                   required
+                  name="nexgen_login_email"
+                  autoComplete="new-password"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder=""
@@ -82,6 +90,8 @@ export const Login: React.FC = () => {
                 <input
                   type="password"
                   required
+                  name="nexgen_login_password"
+                  autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder=""
