@@ -31,6 +31,9 @@ import {
   Users,
   Settings,
   Volume2,
+  Sparkles,
+  Trophy,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -44,6 +47,28 @@ export const Sidebar: React.FC = () => {
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         { label: 'Career Passport', path: '/passport', icon: Compass },
         { label: 'My Journey', path: '/journey', icon: Milestone },
+      ],
+    },
+    {
+      title: 'ACADEMIC STAGES',
+      items: [
+        { label: '01 Class 11 Discover', path: '/stage/class-11', icon: Sparkles },
+        { label: '02 Class 12 Direction', path: '/stage/class-12', icon: Route },
+        { label: '03 Year 1 Foundation', path: '/stage/year-1', icon: Code2 },
+        { label: '04 Year 2 Specialization', path: '/stage/year-2', icon: Layers },
+        { label: '05 Year 3 Industry Prep', path: '/stage/year-3', icon: Cpu },
+        { label: '06 Year 4 Placements', path: '/stage/year-4', icon: Trophy },
+      ],
+    },
+    {
+      title: 'CAREER ENGINES',
+      items: [
+        { label: '07 Internships', path: '/internships', icon: GraduationCap },
+        { label: '08 Placement Hub', path: '/placement', icon: Building },
+        { label: '09 Company Intel', path: '/companies', icon: Briefcase },
+        { label: '10 Interview Prep', path: '/interview-prep', icon: Mic },
+        { label: '11 Offer & Onboarding', path: '/offer-launch', icon: Award },
+        { label: '12 Career Growth', path: '/career-growth', icon: TrendingUp },
       ],
     },
     {

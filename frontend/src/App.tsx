@@ -14,6 +14,22 @@ import { Dashboard } from './pages/student/Dashboard';
 import { CareerPassport } from './pages/student/CareerPassport';
 import { MyJourney } from './pages/student/MyJourney';
 
+// 6 Academic Stage Modules
+import { Class11Discover } from './pages/stages/Class11Discover';
+import { Class12Direction } from './pages/stages/Class12Direction';
+import { Year1Foundation } from './pages/stages/Year1Foundation';
+import { Year2Specialization } from './pages/stages/Year2Specialization';
+import { Year3IndustryPrep } from './pages/stages/Year3IndustryPrep';
+import { Year4PlacementCommand } from './pages/stages/Year4PlacementCommand';
+
+// 6 Career Execution Engines
+import { InternshipEngine } from './pages/career-flow/InternshipEngine';
+import { PlacementEngine } from './pages/career-flow/PlacementEngine';
+import { CompanyEngine } from './pages/career-flow/CompanyEngine';
+import { InterviewPrepEngine } from './pages/career-flow/InterviewPrepEngine';
+import { OfferLaunch } from './pages/career-flow/OfferLaunch';
+import { CareerGrowth } from './pages/career-flow/CareerGrowth';
+
 import { Domains } from './pages/learn/Domains';
 import { Courses } from './pages/learn/Courses';
 import { CoursePlayer } from './pages/learn/CoursePlayer';
@@ -67,6 +83,24 @@ export const AppRoutes: React.FC = () => {
         <Route path="/passport" element={<CareerPassport />} />
         <Route path="/journey" element={<MyJourney />} />
 
+        {/* 6 Dedicated Academic Stage Engines */}
+        <Route path="/stage/class-11" element={<Class11Discover />} />
+        <Route path="/stage/class-12" element={<Class12Direction />} />
+        <Route path="/stage/year-1" element={<Year1Foundation />} />
+        <Route path="/stage/year-2" element={<Year2Specialization />} />
+        <Route path="/stage/year-3" element={<Year3IndustryPrep />} />
+        <Route path="/stage/year-4" element={<Year4PlacementCommand />} />
+
+        {/* 6 Dedicated Career Execution Engines */}
+        <Route path="/internships" element={<InternshipEngine />} />
+        <Route path="/placement" element={<PlacementEngine />} />
+        <Route path="/placement-engine" element={<PlacementEngine />} />
+        <Route path="/companies" element={<CompanyEngine />} />
+        <Route path="/company-engine" element={<CompanyEngine />} />
+        <Route path="/interview-prep" element={<InterviewPrepEngine />} />
+        <Route path="/offer-launch" element={<OfferLaunch />} />
+        <Route path="/career-growth" element={<CareerGrowth />} />
+
         {/* Learn */}
         <Route path="/learning-paths" element={<Domains />} />
         <Route path="/domains" element={<Domains />} />
@@ -81,7 +115,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="/path-explorer" element={<Domains />} />
         <Route path="/skill-tree" element={<SkillTree />} />
         <Route path="/roadmap" element={<CareerRoadmap />} />
-        <Route path="/readiness" element={<CareerPassport />} />
+        <Route path="/readiness" element={<Dashboard />} />
 
         {/* Proof */}
         <Route path="/skills" element={<SkillsAndProof />} />
@@ -91,8 +125,8 @@ export const AppRoutes: React.FC = () => {
 
         {/* Prepare */}
         <Route path="/resume" element={<ResumeAts />} />
-        <Route path="/interview" element={<AiMentor />} />
-        <Route path="/behavioral" element={<AiMentor />} />
+        <Route path="/interview" element={<InterviewPrepEngine />} />
+        <Route path="/behavioral" element={<InterviewPrepEngine />} />
         <Route path="/system-design" element={<SystemDesign />} />
         <Route path="/cybersecurity" element={<SocSimulator />} />
         <Route path="/soc" element={<SocSimulator />} />
@@ -100,8 +134,6 @@ export const AppRoutes: React.FC = () => {
         {/* Opportunities */}
         <Route path="/jobs" element={<Jobs />} />
         <Route path="/applications" element={<Applications />} />
-        <Route path="/internships" element={<Applications />} />
-        <Route path="/placement" element={<TpoDashboard />} />
 
         {/* TPO */}
         <Route path="/tpo" element={<TpoDashboard />} />

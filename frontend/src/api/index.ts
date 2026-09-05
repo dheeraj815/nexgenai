@@ -233,7 +233,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     }
 
     const userId = 'usr_' + Math.random().toString(36).substring(2, 9);
-    const initialScore = stage === 'CLASS_11' ? 72.0 : (stage === 'CLASS_12' ? 68.0 : 75.0);
+    const initialScore = 0.0;
 
     const newUserRecord = {
       id: userId,
@@ -362,8 +362,8 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
         target_role: userRecord.target_role || 'Software Engineering & AI',
         targetRole: userRecord.target_role || 'Software Engineering & AI',
         is_onboarded: true,
-        readiness_score: userRecord.readiness_score || 72.0,
-        readinessScore: userRecord.readiness_score || 72.0,
+        readiness_score: userRecord.readiness_score !== undefined ? userRecord.readiness_score : 0.0,
+        readinessScore: userRecord.readiness_score !== undefined ? userRecord.readiness_score : 0.0,
         backlogs: 0
       }
     };
@@ -403,7 +403,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       department: body.branch || body.department || user.profile?.department,
       graduation_year: body.graduationYear || body.graduation_year || user.profile?.graduation_year,
       cgpa: body.cgpa || user.profile?.cgpa,
-      readiness_score: user.profile?.readiness_score || 72.0
+      readiness_score: user.profile?.readiness_score !== undefined ? user.profile.readiness_score : 0.0
     };
     user.is_onboarded = true;
     localStorage.setItem('nexgenai_user', JSON.stringify(user));
@@ -448,7 +448,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
         cgpa: 9.0
       },
       readiness: {
-        overallScore: user.profile?.readiness_score || (isClass11 ? 72.0 : (isClass12 ? 68.0 : (isYear4 ? 92.0 : 78.0))),
+        overallScore: user.profile?.readiness_score !== undefined ? user.profile.readiness_score : 0.0,
         foundations: isClass11 ? 90 : 85,
         domainSpecialization: isClass11 ? 65 : 82,
         practicalProof: isClass11 ? 70 : 80,
