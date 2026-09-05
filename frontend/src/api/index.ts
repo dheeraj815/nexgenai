@@ -123,10 +123,10 @@ export const DEFAULT_SEED_ACCOUNTS = [
     academic_stage: 'YEAR_4',
     target_role: 'Training & Placement Officer',
     readiness_score: 98.0,
-    institution: 'National Institute of Technology',
+    institution: '',
     department: 'Corporate Relations & Placement Cell',
     graduation_year: 2026,
-    cgpa: 10.0
+    cgpa: 0.0
   },
   {
     id: 'usr_recruiter',
@@ -725,8 +725,24 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
 
   // 18. Recruiter OS
   if (endpoint.includes('/recruiter')) {
+    const registeredStudents = getRegisteredUsers()
+      .filter(u => u.role === 'STUDENT')
+      .map(u => ({
+        id: u.id,
+        name: u.full_name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Candidate',
+        academicStage: u.academic_stage || u.profile?.academicStage || 'CLASS_11',
+        institution: u.institution || u.profile?.institutionName || u.profile?.institution || '',
+        targetRole: u.target_role || u.profile?.targetRole || 'Software Engineer',
+        readinessScore: u.readiness_score !== undefined ? u.readiness_score : (u.profile?.readinessScore || 0),
+        verifiedSkillsCount: 0,
+        topSkills: [],
+        githubEvidenceCount: 0,
+        cgpa: u.cgpa || u.profile?.cgpa || 0.0
+      }));
+    const candidateList = registeredStudents.length > 0 ? registeredStudents : MOCK_CANDIDATES;
+
     if (endpoint.includes('/talent-search')) {
-      return { success: true, data: { candidates: MOCK_CANDIDATES } };
+      return { success: true, data: { candidates: candidateList } };
     }
     if (endpoint.includes('/offers')) {
       return { success: true, data: { offer: { id: 'off_1', status: 'EXTENDED' } } };
@@ -735,15 +751,31 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
 
   // 19. TPO Portal
   if (endpoint.includes('/tpo')) {
+    const registeredStudents = getRegisteredUsers()
+      .filter(u => u.role === 'STUDENT')
+      .map(u => ({
+        id: u.id,
+        name: u.full_name || `${u.firstName || ''} ${u.lastName || ''}`.trim() || 'Candidate',
+        academicStage: u.academic_stage || u.profile?.academicStage || 'CLASS_11',
+        institution: u.institution || u.profile?.institutionName || u.profile?.institution || '',
+        targetRole: u.target_role || u.profile?.targetRole || 'Software Engineer',
+        readinessScore: u.readiness_score !== undefined ? u.readiness_score : (u.profile?.readinessScore || 0),
+        verifiedSkillsCount: 0,
+        topSkills: [],
+        githubEvidenceCount: 0,
+        cgpa: u.cgpa || u.profile?.cgpa || 0.0
+      }));
+    const candidateList = registeredStudents.length > 0 ? registeredStudents : MOCK_CANDIDATES;
+
     return {
       success: true,
       data: {
         drives: [
-          { id: 'drv-1', company: 'Google Cloud India', role: 'Software Engineer - Distributed Systems', ctc: '28 LPA', status: 'ACTIVE', eligible_students: 84 },
-          { id: 'drv-2', company: 'Microsoft IDC', role: 'Security & Systems Engineer', ctc: '22 LPA', status: 'UPCOMING', eligible_students: 112 }
+          { id: 'drv-1', company: 'Google Cloud India', role: 'Software Engineer - Distributed Systems', ctc: '28 LPA', status: 'ACTIVE', eligible_students: candidateList.length },
+          { id: 'drv-2', company: 'Microsoft IDC', role: 'Security & Systems Engineer', ctc: '22 LPA', status: 'UPCOMING', eligible_students: candidateList.length }
         ],
-        students: MOCK_CANDIDATES,
-        analytics: { total_eligible: 142, placed_count: 98, average_ctc: '14.2 LPA', top_ctc: '38 LPA' }
+        students: candidateList,
+        analytics: { total_eligible: candidateList.length, placed_count: 0, average_ctc: '0 LPA', top_ctc: '0 LPA' }
       }
     };
   }

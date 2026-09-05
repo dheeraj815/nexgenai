@@ -978,13 +978,13 @@ export const MOCK_CANDIDATES = [
     id: 'cand-1',
     name: 'Candidate Scholar',
     academicStage: 'CLASS_11',
-    institution: 'National Institute of Technology',
+    institution: '',
     targetRole: 'Full Stack & AI Engineer',
     readinessScore: 78,
     verifiedSkillsCount: 6,
     topSkills: ['Python', 'React', 'FastAPI', 'Algorithms'],
     githubEvidenceCount: 3,
-    cgpa: 8.8
+    cgpa: 0.0
   },
   {
     id: 'cand-2',
