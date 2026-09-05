@@ -209,20 +209,63 @@ export const Register: React.FC = () => {
 
             {/* Target Role */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-                Target Role / Aspiring Career Track
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300">
+                  Target Role / Aspiring Career Track
+                </label>
+                <span className="text-[10px] text-slate-500">Pick or type custom</span>
+              </div>
               <div className="relative">
                 <Target className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
                 <input
                   type="text"
+                  list="suggested-target-roles"
                   name="nexgen_target_role"
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
-                  placeholder=""
+                  placeholder="e.g. Software Engineer, AI Engineer, Cloud DevOps..."
                   className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 />
+                <datalist id="suggested-target-roles">
+                  <option value="Software Development Engineer (SDE)" />
+                  <option value="AI & Machine Learning Engineer" />
+                  <option value="Full Stack Web Developer" />
+                  <option value="Cloud & DevOps Engineer" />
+                  <option value="Cybersecurity / SOC Analyst" />
+                  <option value="Data Scientist / Data Engineer" />
+                  <option value="Mobile App Developer (iOS / Android)" />
+                  <option value="Backend Systems Architect" />
+                  <option value="Product Engineer" />
+                </datalist>
               </div>
+
+              {/* Quick Select Chips */}
+              <div className="flex flex-wrap gap-1.5 mt-2">
+                {[
+                  'Software Engineer (SDE)',
+                  'AI / ML Engineer',
+                  'Full Stack Developer',
+                  'Cybersecurity / SOC',
+                  'Cloud & DevOps',
+                  'Data Scientist'
+                ].map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    onClick={() => setTargetRole(role)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition ${
+                      targetRole === role
+                        ? 'bg-blue-600 text-white shadow-sm'
+                        : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                    }`}
+                  >
+                    {role}
+                  </button>
+                ))}
+              </div>
+              <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed">
+                NexGenAI tailors your 16-step curriculum, coding challenges, company roadmaps, and mock interviews directly to this target track.
+              </p>
             </div>
 
             {/* Password */}
