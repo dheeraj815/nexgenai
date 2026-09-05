@@ -16,7 +16,7 @@ export const Register: React.FC = () => {
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'STUDENT' | 'TPO' | 'RECRUITER'>('STUDENT');
   const [academicStage, setAcademicStage] = useState(initialStage);
-  const [targetRole, setTargetRole] = useState('Software Engineering & AI Foundations');
+  const [targetRole, setTargetRole] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -145,8 +145,8 @@ export const Register: React.FC = () => {
                     autoComplete="off"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
-                    placeholder="e.g. Dheeraj"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                    placeholder=""
+                    className="w-full pl-9 pr-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                   />
                 </div>
               </div>
@@ -159,8 +159,8 @@ export const Register: React.FC = () => {
                   autoComplete="off"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
-                  placeholder="e.g. Muley"
-                  className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                  placeholder=""
+                  className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 />
               </div>
             </div>
@@ -177,8 +177,8 @@ export const Register: React.FC = () => {
                   autoComplete="new-password"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="name@school.edu or name@gmail.com"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                  placeholder=""
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 />
               </div>
             </div>
@@ -191,16 +191,7 @@ export const Register: React.FC = () => {
                 </label>
                 <select
                   value={academicStage}
-                  onChange={(e) => {
-                    const st = e.target.value;
-                    setAcademicStage(st);
-                    if (st === 'CLASS_11') setTargetRole('Software Engineering & AI Foundations');
-                    else if (st === 'CLASS_12') setTargetRole('Web & Systems Engineering');
-                    else if (st === 'YEAR_1') setTargetRole('Full Stack Web Developer');
-                    else if (st === 'YEAR_2') setTargetRole('Cloud & Distributed Systems');
-                    else if (st === 'YEAR_3') setTargetRole('SDE & System Architecture');
-                    else if (st === 'YEAR_4') setTargetRole('SDE-1 / Graduate Cloud Engineer');
-                  }}
+                  onChange={(e) => setAcademicStage(e.target.value)}
                   className="w-full px-3 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 >
                   <option value="CLASS_11">Class 11 (Career Discovery & Aptitude)</option>
@@ -228,8 +219,8 @@ export const Register: React.FC = () => {
                   name="nexgen_target_role"
                   value={targetRole}
                   onChange={(e) => setTargetRole(e.target.value)}
-                  placeholder="e.g. Software Engineering, AI Engineer, Cybersecurity"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                  placeholder=""
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 />
               </div>
             </div>
@@ -246,8 +237,8 @@ export const Register: React.FC = () => {
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="At least 6 characters"
-                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition placeholder:text-slate-600"
+                  placeholder=""
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-lg bg-slate-900/90 border border-slate-700/80 text-white text-sm focus:outline-none focus:border-brand-500 transition"
                 />
               </div>
             </div>

@@ -976,7 +976,7 @@ export const MOCK_JOBS = [
 export const MOCK_CANDIDATES = [
   {
     id: 'cand-1',
-    name: 'Dheeraj Muley',
+    name: 'Candidate Scholar',
     academicStage: 'CLASS_11',
     institution: 'National Institute of Technology',
     targetRole: 'Full Stack & AI Engineer',

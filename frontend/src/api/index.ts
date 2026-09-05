@@ -20,9 +20,9 @@ export const DEFAULT_SEED_ACCOUNTS = [
     id: 'usr_c11',
     email: 'student11@nexgenai.edu',
     password: 'Password@123',
-    firstName: 'Dheeraj',
-    lastName: 'Muley',
-    full_name: 'Dheeraj Muley',
+    firstName: 'Student',
+    lastName: 'Candidate',
+    full_name: 'Student Candidate',
     role: 'STUDENT',
     academic_stage: 'CLASS_11',
     target_role: 'Software Engineering & AI Foundations',
@@ -441,7 +441,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
 
     const passportData = {
       profile: user.profile || {
-        full_name: user.full_name || 'Dheeraj Muley',
+        full_name: user.full_name || 'Candidate',
         academic_stage: stage,
         institution: 'National Institute of Technology',
         target_role: 'Software Engineering & AI',
@@ -737,8 +737,8 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       success: true,
       data: {
         projects: [
-          { id: 'pr-1', title: 'High-Throughput Distributed Cache', description: 'Production-grade distributed cache in Python & Redis with consistent hashing.', githubUrl: 'https://github.com/dheeraj815/distributed-cache', verified: true, stars: 34 },
-          { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', description: 'Automated brute-force and threat detection parser with Splunk integration.', githubUrl: 'https://github.com/dheeraj815/siem-analyzer', verified: true, stars: 27 }
+          { id: 'pr-1', title: 'High-Throughput Distributed Cache', description: 'Production-grade distributed cache in Python & Redis with consistent hashing.', githubUrl: 'https://github.com/project/distributed-cache', verified: true, stars: 34 },
+          { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', description: 'Automated brute-force and threat detection parser with Splunk integration.', githubUrl: 'https://github.com/project/siem-analyzer', verified: true, stars: 27 }
         ]
       }
     };

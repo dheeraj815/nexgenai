@@ -13,7 +13,7 @@ def run_seed():
 
     # 1. Users & Profiles
     demo_users = [
-        {"email": "student11@nexgenai.edu", "role": "STUDENT", "name": "Dheeraj Muley", "stage": "CLASS_11", "target": "Software Engineering & AI Foundations", "cgpa": 9.4, "pwd": "Password@123"},
+        {"email": "student11@nexgenai.edu", "role": "STUDENT", "name": "Class 11 Scholar", "stage": "CLASS_11", "target": "Software Engineering & AI Foundations", "cgpa": 9.4, "pwd": "Password@123"},
         {"email": "student12@nexgenai.edu", "role": "STUDENT", "name": "Aarav Sharma", "stage": "CLASS_12", "target": "Web & Systems Engineering", "cgpa": 9.1, "pwd": "Password@123"},
         {"email": "student.y4@nexgenai.edu", "role": "STUDENT", "name": "Vikram Malhotra", "stage": "COLLEGE_YEAR_4", "target": "SDE-1 / Graduate Cloud Engineer", "cgpa": 9.3, "pwd": "Password@123"},
         {"email": "tpo@college.edu", "role": "TPO", "name": "Dr. Ramesh Kulkarni", "stage": "COLLEGE_YEAR_4", "target": "Training & Placement Officer", "cgpa": 9.8, "pwd": "Password@123"},
