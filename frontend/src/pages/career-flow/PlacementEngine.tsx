@@ -34,8 +34,8 @@ export const PlacementEngine: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'drives' | 'profiles' | 'gap' | 'hub' | 'mock'>('drives');
   const [selectedDriveId, setSelectedDriveId] = useState<string>('drv-google');
 
-  // Registration Tracker
-  const [registeredDrives, setRegisteredDrives] = useState<string[]>(['drv-google', 'drv-razorpay']);
+  // Registration Tracker (Starts clean)
+  const [registeredDrives, setRegisteredDrives] = useState<string[]>([]);
 
   // Mock Assessment State
   const [mockQuestionIdx, setMockQuestionIdx] = useState(0);

@@ -22,15 +22,15 @@ export const Class11Discover: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'discovery' | 'foundations' | 'domains' | 'paths' | 'mentor'>('discovery');
 
-  // Tab 1: Career Discovery State
-  const [selectedInterests, setSelectedInterests] = useState<string[]>(['AI & Machine Learning', 'Software Development']);
+  // Tab 1: Career Discovery State (Starts clean)
+  const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
   const [quizAnswers, setQuizAnswers] = useState<Record<number, number>>({});
-  const [selectedStrengths, setSelectedStrengths] = useState<string[]>(['Logical Thinking', 'Curiosity', 'Pattern Recognition']);
+  const [selectedStrengths, setSelectedStrengths] = useState<string[]>([]);
 
-  // Tab 2: Tech Foundations State
+  // Tab 2: Tech Foundations State (Starts clean: 0 completed)
   const [expandedFoundationTopic, setExpandedFoundationTopic] = useState<string | null>('fb-1');
   const [foundationCodeOutput, setFoundationCodeOutput] = useState<Record<string, string>>({});
-  const [completedFoundations, setCompletedFoundations] = useState<string[]>(['fb-1']);
+  const [completedFoundations, setCompletedFoundations] = useState<string[]>([]);
 
   // Tab 3: Domain Exploration State
   const [activeDeepTopicId, setActiveDeepTopicId] = useState<string | null>(null);

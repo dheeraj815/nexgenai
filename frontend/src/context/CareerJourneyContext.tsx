@@ -43,41 +43,75 @@ export interface CompanyPrepPlan {
   isStarted: boolean;
 }
 
+export interface AcademicProfile {
+  cgpa: number;
+  backlogs: number;
+  collegeName: string;
+  branch: string;
+  graduationYear: number;
+}
+
 interface CareerJourneyContextType {
   targetGoal: string;
   setTargetGoal: (goal: string) => void;
   targetCompany: string;
   setTargetCompany: (company: string) => void;
+  academicProfile: AcademicProfile;
+  updateAcademicProfile: (profile: Partial<AcademicProfile>) => void;
   skills: VerifiedSkill[];
   projects: StudentProject[];
   xpPoints: number;
   readiness: ReadinessBreakdown;
   activeCompanyPrep: CompanyPrepPlan | null;
   stageProgress: Record<string, { completedCount: number; totalCount: number }>;
+  solvedChallengesCount: number;
+  passedAssessmentsCount: number;
+  completedMockInterviewsCount: number;
+  resumeAtsScore: number;
+  setResumeAtsScore: (score: number) => void;
   completeStageTopic: (stage: string, topicId: string, xpEarned?: number) => void;
   verifySkillProof: (skillName: string, category: string, level?: 'Foundational' | 'Intermediate' | 'Advanced') => void;
-  submitProjectProof: (projectId: string, githubUrl?: string, liveUrl?: string) => void;
+  submitProjectProof: (projectId: string, githubUrl?: string, liveUrl?: string, title?: string, desc?: string) => void;
   solveCodingProblem: (problemId: string, score?: number) => void;
+  recordAssessmentPass: (topicId: string, score: number) => void;
   recordMockInterview: (score: number, feedback: string) => void;
   startCompanyPreparation: (companyId: string, companyName: string, role: string, requiredSkills: string[]) => void;
   markPrepWeekCompleted: (weekNum: number) => void;
+  resetToCleanSlate: () => void;
 }
 
 const CareerJourneyContext = createContext<CareerJourneyContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'nexgenai_career_journey_v2';
+const STORAGE_KEY = 'nexgenai_career_journey_v3';
 
 export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Load initial state or defaults
+  // Load initial state or completely clean defaults (zero dummy data)
   const [targetGoal, setTargetGoalInternal] = useState<string>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try { return JSON.parse(saved).targetGoal || 'Software Engineer - AI Platforms'; } catch (e) {}
+      try { return JSON.parse(saved).targetGoal || 'Software Engineer'; } catch (e) {}
     }
-    return 'Software Engineer - AI Platforms';
+    return 'Software Engineer';
   });
 
   const [targetCompany, setTargetCompanyInternal] = useState<string>('Google India');
+
+  const [academicProfile, setAcademicProfile] = useState<AcademicProfile>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.academicProfile) return parsed.academicProfile;
+      } catch (e) {}
+    }
+    return {
+      cgpa: 0,
+      backlogs: 0,
+      collegeName: '',
+      branch: 'Computer Science & Engineering',
+      graduationYear: 2027
+    };
+  });
 
   const [skills, setSkills] = useState<VerifiedSkill[]>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
@@ -87,11 +121,7 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
         if (parsed.skills && Array.isArray(parsed.skills)) return parsed.skills;
       } catch (e) {}
     }
-    return [
-      { id: 'sk-1', name: 'Computational Thinking', category: 'Foundations', level: 'Foundational', verified: true, score: 95, evidenceCount: 2 },
-      { id: 'sk-2', name: 'Python 3.12 Core', category: 'Programming', level: 'Intermediate', verified: true, score: 88, evidenceCount: 3 },
-      { id: 'sk-3', name: 'Git & GitHub Version Control', category: 'Tools', level: 'Foundational', verified: true, score: 90, evidenceCount: 2 },
-    ];
+    return []; // Clean slate: starts with 0 dummy skills
   });
 
   const [projects, setProjects] = useState<StudentProject[]>(() => {
@@ -102,27 +132,15 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
         if (parsed.projects && Array.isArray(parsed.projects)) return parsed.projects;
       } catch (e) {}
     }
-    return [
-      {
-        id: 'proj-1',
-        title: 'Interactive Algorithmic Logic Sandbox',
-        description: 'In-browser logic gates and computational decomposition simulator.',
-        stage: 'CLASS_11',
-        techStack: ['Python', 'Logic Gates'],
-        status: 'COMPLETED',
-        githubUrl: 'https://github.com/candidate/algorithmic-sandbox',
-        stars: 18,
-        completedAt: '2026-08-15'
-      }
-    ];
+    return []; // Clean slate: starts with 0 dummy projects
   });
 
   const [xpPoints, setXpPoints] = useState<number>(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try { return JSON.parse(saved).xpPoints || 180; } catch (e) {}
+      try { return JSON.parse(saved).xpPoints || 0; } catch (e) {}
     }
-    return 180;
+    return 0; // Starts with 0 XP
   });
 
   const [stageProgress, setStageProgress] = useState<Record<string, { completedCount: number; totalCount: number }>>(() => {
@@ -131,12 +149,12 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
       try { return JSON.parse(saved).stageProgress || {}; } catch (e) {}
     }
     return {
-      class11: { completedCount: 3, totalCount: 6 },
-      class12: { completedCount: 2, totalCount: 5 },
-      year1: { completedCount: 3, totalCount: 6 },
-      year2: { completedCount: 2, totalCount: 6 },
-      year3: { completedCount: 2, totalCount: 6 },
-      year4: { completedCount: 1, totalCount: 5 },
+      class11: { completedCount: 0, totalCount: 6 },
+      class12: { completedCount: 0, totalCount: 5 },
+      year1: { completedCount: 0, totalCount: 6 },
+      year2: { completedCount: 0, totalCount: 6 },
+      year3: { completedCount: 0, totalCount: 6 },
+      year4: { completedCount: 0, totalCount: 5 },
     };
   });
 
@@ -148,16 +166,48 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
     return null;
   });
 
-  // Calculate dynamic readiness whenever skills/projects update
+  const [solvedChallengesCount, setSolvedChallengesCount] = useState<number>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { return JSON.parse(saved).solvedChallengesCount || 0; } catch (e) {}
+    }
+    return 0;
+  });
+
+  const [passedAssessmentsCount, setPassedAssessmentsCount] = useState<number>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { return JSON.parse(saved).passedAssessmentsCount || 0; } catch (e) {}
+    }
+    return 0;
+  });
+
+  const [completedMockInterviewsCount, setCompletedMockInterviewsCount] = useState<number>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { return JSON.parse(saved).completedMockInterviewsCount || 0; } catch (e) {}
+    }
+    return 0;
+  });
+
+  const [resumeAtsScore, setResumeAtsScoreState] = useState<number>(() => {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+      try { return JSON.parse(saved).resumeAtsScore || 0; } catch (e) {}
+    }
+    return 0;
+  });
+
+  // Calculate dynamic readiness strictly from real user accomplishments
   const verifiedCount = skills.filter(s => s.verified).length;
   const completedProjectsCount = projects.filter(p => p.status === 'COMPLETED').length;
   const readiness = calculateReadinessBreakdown({
     verifiedSkillsCount: verifiedCount,
     completedProjectsCount: completedProjectsCount,
-    solvedCodingChallenges: 4,
-    passedAssessmentsCount: 3,
-    completedMockInterviews: 1,
-    resumeAtsScore: 84
+    solvedCodingChallenges: solvedChallengesCount,
+    passedAssessmentsCount: passedAssessmentsCount,
+    completedMockInterviews: completedMockInterviewsCount,
+    resumeAtsScore: resumeAtsScore
   });
 
   // Save to localStorage on any state change
@@ -165,14 +215,36 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
     const stateToSave = {
       targetGoal,
       targetCompany,
+      academicProfile,
       skills,
       projects,
       xpPoints,
       stageProgress,
-      activeCompanyPrep
+      activeCompanyPrep,
+      solvedChallengesCount,
+      passedAssessmentsCount,
+      completedMockInterviewsCount,
+      resumeAtsScore
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
-  }, [targetGoal, targetCompany, skills, projects, xpPoints, stageProgress, activeCompanyPrep]);
+
+    // Also sync the readiness score back to user profile in nexgenai_user if logged in
+    try {
+      const userStr = localStorage.getItem('nexgenai_user');
+      if (userStr) {
+        const u = JSON.parse(userStr);
+        if (u && u.profile) {
+          u.profile.readinessScore = readiness.overallScore;
+          localStorage.setItem('nexgenai_user', JSON.stringify(u));
+        }
+      }
+    } catch (e) {}
+  }, [
+    targetGoal, targetCompany, academicProfile, skills, projects, xpPoints,
+    stageProgress, activeCompanyPrep, solvedChallengesCount,
+    passedAssessmentsCount, completedMockInterviewsCount, resumeAtsScore,
+    readiness.overallScore
+  ]);
 
   const setTargetGoal = (goal: string) => {
     setTargetGoalInternal(goal);
@@ -180,6 +252,15 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const setTargetCompany = (company: string) => {
     setTargetCompanyInternal(company);
+  };
+
+  const updateAcademicProfile = (updated: Partial<AcademicProfile>) => {
+    setAcademicProfile(prev => ({ ...prev, ...updated }));
+  };
+
+  const setResumeAtsScore = (score: number) => {
+    setResumeAtsScoreState(score);
+    setXpPoints(prev => prev + 25);
   };
 
   const completeStageTopic = (stage: string, topicId: string, xpEarned = 25) => {
@@ -217,7 +298,7 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
     setXpPoints(prev => prev + 35);
   };
 
-  const submitProjectProof = (projectId: string, githubUrl?: string, liveUrl?: string) => {
+  const submitProjectProof = (projectId: string, githubUrl?: string, liveUrl?: string, title?: string, desc?: string) => {
     setProjects(prev => {
       const existing = prev.find(p => p.id === projectId);
       if (existing) {
@@ -233,8 +314,8 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
         ...prev,
         {
           id: projectId,
-          title: projectId.replace(/-/g, ' ').toUpperCase(),
-          description: 'Production-ready software milestone project with full verification.',
+          title: title || projectId.replace(/-/g, ' ').toUpperCase(),
+          description: desc || 'Production-ready software milestone project with full verification.',
           stage: 'COLLEGE',
           techStack: ['Python', 'PostgreSQL', 'FastAPI'],
           status: 'COMPLETED',
@@ -248,11 +329,18 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const solveCodingProblem = (problemId: string, score = 100) => {
+    setSolvedChallengesCount(prev => prev + 1);
     setXpPoints(prev => prev + 20);
     verifySkillProof('Algorithmic Problem Solving', 'DSA', 'Intermediate');
   };
 
+  const recordAssessmentPass = (topicId: string, score: number) => {
+    setPassedAssessmentsCount(prev => prev + 1);
+    setXpPoints(prev => prev + 25);
+  };
+
   const recordMockInterview = (score: number, feedback: string) => {
+    setCompletedMockInterviewsCount(prev => prev + 1);
     setXpPoints(prev => prev + 40);
     verifySkillProof('Technical Communication & STAR Method', 'Interviewing', 'Intermediate');
   };
@@ -319,6 +407,33 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
     setXpPoints(prev => prev + 30);
   };
 
+  const resetToCleanSlate = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setSkills([]);
+    setProjects([]);
+    setXpPoints(0);
+    setSolvedChallengesCount(0);
+    setPassedAssessmentsCount(0);
+    setCompletedMockInterviewsCount(0);
+    setResumeAtsScoreState(0);
+    setActiveCompanyPrep(null);
+    setAcademicProfile({
+      cgpa: 0,
+      backlogs: 0,
+      collegeName: '',
+      branch: 'Computer Science & Engineering',
+      graduationYear: 2027
+    });
+    setStageProgress({
+      class11: { completedCount: 0, totalCount: 6 },
+      class12: { completedCount: 0, totalCount: 5 },
+      year1: { completedCount: 0, totalCount: 6 },
+      year2: { completedCount: 0, totalCount: 6 },
+      year3: { completedCount: 0, totalCount: 6 },
+      year4: { completedCount: 0, totalCount: 5 },
+    });
+  };
+
   return (
     <CareerJourneyContext.Provider
       value={{
@@ -326,19 +441,28 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
         setTargetGoal,
         targetCompany,
         setTargetCompany,
+        academicProfile,
+        updateAcademicProfile,
         skills,
         projects,
         xpPoints,
         readiness,
         activeCompanyPrep,
         stageProgress,
+        solvedChallengesCount,
+        passedAssessmentsCount,
+        completedMockInterviewsCount,
+        resumeAtsScore,
+        setResumeAtsScore,
         completeStageTopic,
         verifySkillProof,
         submitProjectProof,
         solveCodingProblem,
+        recordAssessmentPass,
         recordMockInterview,
         startCompanyPreparation,
         markPrepWeekCompleted,
+        resetToCleanSlate,
       }}
     >
       {children}

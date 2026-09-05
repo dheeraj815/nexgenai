@@ -32,10 +32,10 @@ export const Class12Direction: React.FC = () => {
     'Type "git init" to initialize your first Git repository.'
   ]);
 
-  // Portfolio Launch Checklist State
+  // Portfolio Launch Checklist State (Starts completely clean)
   const [portfolioChecklist, setPortfolioChecklist] = useState<Record<string, boolean>>({
-    github_account: true,
-    first_readme: true,
+    github_account: false,
+    first_readme: false,
     first_repo: false,
     linkedin_profile: false,
     portfolio_website: false

@@ -15,9 +15,11 @@ import {
 import { useAuth } from '../../context/AuthContext';
 import { useVoice } from '../../context/VoiceContext';
 import { useNotifications } from '../../context/NotificationContext';
+import { useCareerJourney } from '../../context/CareerJourneyContext';
 
 export const Navbar: React.FC = () => {
   const { user, logout, viewRole, setViewRole } = useAuth();
+  const { readiness } = useCareerJourney();
   const { isPlaying, stop } = useVoice();
   const { notifications, unreadCount, markAsRead } = useNotifications();
   const navigate = useNavigate();
@@ -65,7 +67,7 @@ export const Navbar: React.FC = () => {
               <GraduationCap className="w-3.5 h-3.5 text-brand-400" />
               <span className="font-medium text-white">{stageDisplayNames[currentStage] || currentStage}</span>
               <span className="text-[10px] text-emerald-400 bg-emerald-950/60 px-1.5 py-0.2 rounded border border-emerald-800/40">
-                Readiness: {user.profile?.readinessScore || 0}%
+                Readiness: {readiness.overallScore}%
               </span>
             </div>
           )}

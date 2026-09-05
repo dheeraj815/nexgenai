@@ -503,11 +503,13 @@ export const Year2Specialization: React.FC = () => {
                 <div className="text-[11px] text-slate-400 mt-0.5">Total Experience XP</div>
               </div>
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xl font-black text-emerald-400">2 / 3</div>
+                <div className="text-xl font-black text-emerald-400">
+                  {alerts.filter(a => a.status === 'RESOLVED').length} / {alerts.length}
+                </div>
                 <div className="text-[11px] text-slate-400 mt-0.5">SOC Alerts Mitigated</div>
               </div>
               <div className="p-4 bg-slate-950 border border-slate-800 rounded-xl">
-                <div className="text-xl font-black text-amber-400">Intermediate</div>
+                <div className="text-xl font-black text-amber-400">{readiness.statusLabel}</div>
                 <div className="text-[11px] text-slate-400 mt-0.5">Candidate Tier</div>
               </div>
             </div>

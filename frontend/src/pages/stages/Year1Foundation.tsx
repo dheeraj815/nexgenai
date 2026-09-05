@@ -30,11 +30,11 @@ export const Year1Foundation: React.FC = () => {
   const [selectedProblemId, setSelectedProblemId] = useState<string>('p-1');
   const [codeSolution, setCodeSolution] = useState<string>('def two_sum(nums, target):\n    lookup = {}\n    for i, num in enumerate(nums):\n        diff = target - num\n        if diff in lookup:\n            return [lookup[diff], i]\n        lookup[num] = i\n    return []');
   const [arenaOutput, setArenaOutput] = useState<string | null>(null);
-  const [solvedProblems, setSolvedProblems] = useState<string[]>(['p-1']);
+  const [solvedProblems, setSolvedProblems] = useState<string[]>([]);
 
   // CS Foundations Accordion State
   const [expandedCS, setExpandedCS] = useState<string | null>('cs-1');
-  const [completedCS, setCompletedCS] = useState<string[]>(['cs-1']);
+  const [completedCS, setCompletedCS] = useState<string[]>([]);
 
   // Project Lab Form State
   const [projectTitle, setProjectTitle] = useState('');

@@ -7,12 +7,14 @@ import {
   ChevronRight, Star
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { apiRequest } from '../../api';
 import { calculateReadinessBreakdown, ReadinessBreakdown } from '../../utils/readinessEngine';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
+  const { readiness: journeyReadiness } = useCareerJourney();
 
   const [passport, setPassport] = useState<any>(null);
   const [courses, setCourses] = useState<any[]>([]);
@@ -37,24 +39,8 @@ export const Dashboard: React.FC = () => {
 
   const stage = user?.profile?.academicStage || 'CLASS_11';
 
-  // Compute authentic dynamic readiness breakdown
-  const verifiedSkillsCount = passport?.skills?.filter((s: any) => s.verified || s.status === 'VERIFIED')?.length || 0;
-  const completedProjectsCount = passport?.projects?.filter((p: any) => p.completed || p.status === 'COMPLETED')?.length || 0;
-  const solvedCodingChallenges = passport?.codingSubmissions?.length || 0;
-  const passedAssessmentsCount = 1; // initial diagnostic
-  const completedMockInterviews = 0;
-  const resumeAtsScore = passport?.resumes?.[0]?.ats_score || 0;
-
-  const readinessBreakdown: ReadinessBreakdown = calculateReadinessBreakdown({
-    verifiedSkillsCount,
-    completedProjectsCount,
-    solvedCodingChallenges,
-    passedAssessmentsCount,
-    completedMockInterviews,
-    resumeAtsScore,
-    stage
-  });
-
+  // Use unified authentic dynamic readiness breakdown
+  const readinessBreakdown: ReadinessBreakdown = journeyReadiness;
   const readiness = readinessBreakdown.overallScore;
 
   const stageConfigs: Record<string, {

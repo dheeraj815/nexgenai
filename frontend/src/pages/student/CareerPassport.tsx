@@ -16,10 +16,12 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { apiRequest } from '../../api';
 
 export const CareerPassport: React.FC = () => {
   const { user } = useAuth();
+  const { skills: journeySkills, projects: journeyProjects, readiness: journeyReadiness } = useCareerJourney();
   const [passport, setPassport] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -44,9 +46,12 @@ export const CareerPassport: React.FC = () => {
   }
 
   const profile = passport?.profile;
-  const readiness = passport?.readiness;
-  const skills = passport?.skills || [];
-  const projects = passport?.projects || [];
+  const readiness = passport?.readiness ? {
+    ...passport.readiness,
+    overall_score: journeyReadiness.overallScore
+  } : { overall_score: journeyReadiness.overallScore };
+  const skills = (journeySkills && journeySkills.length > 0) ? journeySkills : (passport?.skills || []);
+  const projects = (journeyProjects && journeyProjects.length > 0) ? journeyProjects : (passport?.projects || []);
   const submissions = passport?.codingSubmissions || [];
   const attempts = passport?.assessmentAttempts || [];
   const socAttempts = passport?.socIncidentAttempts || [];

@@ -16,15 +16,19 @@ export const Year3IndustryPrep: React.FC = () => {
     startCompanyPreparation, 
     markPrepWeekCompleted,
     submitProjectProof, 
-    xpPoints 
+    xpPoints,
+    resumeAtsScore,
+    setResumeAtsScore
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'gap' | 'ats' | 'interview' | 'capstone' | 'intel'>('gap');
   const [selectedCompany, setSelectedCompany] = useState<string>('Google');
 
-  // ATS Studio State
-  const [isAtsUploaded, setIsAtsUploaded] = useState(false);
-  const [atsScore, setAtsScore] = useState(84);
+  // Interactive ATS Studio State (No Dummy Data)
+  const [resumeText, setResumeText] = useState('');
+  const [detectedKeywords, setDetectedKeywords] = useState<string[]>([]);
+  const [missingKeywords, setMissingKeywords] = useState<string[]>([]);
+  const [isScanned, setIsScanned] = useState(resumeAtsScore > 0);
 
   // Interview Mastery State
   const [interviewType, setInterviewType] = useState<'tech' | 'behavioral' | 'system'>('tech');
@@ -53,6 +57,19 @@ export const Year3IndustryPrep: React.FC = () => {
   );
   const missingSkills = currentComp.skills.filter(s => !matchedSkills.includes(s));
   const matchPercentage = Math.round((matchedSkills.length / Math.max(1, currentComp.skills.length)) * 100);
+
+  const handleScanResume = () => {
+    if (!resumeText.trim()) return;
+    const lower = resumeText.toLowerCase();
+    const allKeywords = [...currentComp.skills, 'Git', 'Docker', 'REST API', 'Unit Testing', 'CI/CD'];
+    const found = allKeywords.filter(k => lower.includes(k.toLowerCase()));
+    const missing = allKeywords.filter(k => !lower.includes(k.toLowerCase()));
+    const score = Math.min(100, Math.round((found.length / Math.max(1, allKeywords.length)) * 100));
+    setDetectedKeywords(found);
+    setMissingKeywords(missing);
+    setResumeAtsScore(score);
+    setIsScanned(true);
+  };
 
   const handleStartPrep = () => {
     startCompanyPreparation(selectedCompany.toLowerCase(), selectedCompany, currentComp.role, currentComp.skills);
@@ -274,53 +291,92 @@ export const Year3IndustryPrep: React.FC = () => {
       {activeTab === 'ats' && (
         <div className="space-y-6">
           <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
               <div>
                 <h3 className="text-base font-bold text-white flex items-center gap-2">
                   <FileText className="w-5 h-5 text-amber-400" />
-                  <span>Applicant Tracking System (ATS) Resume Parser</span>
+                  <span>Applicant Tracking System (ATS) Resume Parser & Scanner</span>
                 </h3>
-                <p className="text-xs text-slate-400">Top tech companies screen 75% of resumes with automated keyword parsers.</p>
+                <p className="text-xs text-slate-400">Targeting: <strong className="text-white">{selectedCompany}</strong> ({currentComp.role})</p>
               </div>
 
-              <button
-                onClick={() => setIsAtsUploaded(true)}
-                className="flex items-center gap-1.5 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition-all shadow-md"
-              >
-                <Upload className="w-3.5 h-3.5" />
-                <span>Upload & Scan Resume</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2 text-center">
-                <div className="text-3xl font-black text-emerald-400">{atsScore} / 100</div>
-                <div className="text-xs font-bold text-white">ATS Passability Index</div>
-                <p className="text-[11px] text-slate-400">High probability of clearing automated corporate recruiters.</p>
-              </div>
-
-              <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="text-xs font-bold text-emerald-400 uppercase">Keywords Detected (8):</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {['Python', 'SQL', 'FastAPI', 'Redis', 'Docker', 'Git', 'REST APIs', 'Data Structures'].map(k => (
-                    <span key={k} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded text-[10px]">
-                      ✓ {k}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
-                <div className="text-xs font-bold text-rose-400 uppercase">Recommended Keywords (3):</div>
-                <div className="flex flex-wrap gap-1.5">
-                  {['Kubernetes', 'CI/CD Pipeline', 'System Design'].map(k => (
-                    <span key={k} className="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[10px]">
-                      + {k}
-                    </span>
-                  ))}
+              <div className="flex items-center gap-3">
+                <div className="text-right">
+                  <div className="text-2xl font-black text-emerald-400">{resumeAtsScore} / 100</div>
+                  <div className="text-[10px] text-slate-400 uppercase">Live ATS Score</div>
                 </div>
               </div>
             </div>
+
+            {/* Resume Input Area */}
+            <div className="space-y-3">
+              <label className="text-xs font-semibold text-slate-300 flex items-center justify-between">
+                <span>Paste Your Resume Text or Skills Summary below to scan:</span>
+                <span className="text-[11px] text-slate-400">Scanned against {currentComp.skills.length + 5} corporate keywords</span>
+              </label>
+
+              <textarea
+                placeholder="Paste your resume content, technical skills, projects, and work experience here (e.g. Developed REST APIs in Python FastAPI, PostgreSQL databases, Docker containerization, Git version control, LeetCode data structures)..."
+                value={resumeText}
+                onChange={(e) => setResumeText(e.target.value)}
+                rows={5}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+              />
+
+              <div className="flex justify-end">
+                <button
+                  onClick={handleScanResume}
+                  disabled={!resumeText.trim()}
+                  className="px-6 py-2.5 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2"
+                >
+                  <Upload className="w-4 h-4" />
+                  <span>Scan Resume & Recalculate ATS Score</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Results Grid */}
+            {isScanned ? (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2 text-center">
+                  <div className="text-3xl font-black text-emerald-400">{resumeAtsScore} / 100</div>
+                  <div className="text-xs font-bold text-white">ATS Match Index</div>
+                  <p className="text-[11px] text-slate-400">
+                    {resumeAtsScore >= 70 ? 'High probability of passing automated screening.' : 'Add missing keywords to improve recruiter visibility.'}
+                  </p>
+                </div>
+
+                <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                  <div className="text-xs font-bold text-emerald-400 uppercase">Keywords Detected ({detectedKeywords.length}):</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {detectedKeywords.length > 0 ? (
+                      detectedKeywords.map(k => (
+                        <span key={k} className="px-2 py-0.5 bg-emerald-500/10 text-emerald-300 rounded text-[10px] border border-emerald-500/20">
+                          ✓ {k}
+                        </span>
+                      ))
+                    ) : (
+                      <span className="text-xs text-slate-500">No matching technical keywords detected.</span>
+                    )}
+                  </div>
+                </div>
+
+                <div className="p-5 bg-slate-950 border border-slate-800 rounded-xl space-y-2">
+                  <div className="text-xs font-bold text-rose-400 uppercase">Missing Keywords to Add ({missingKeywords.length}):</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {missingKeywords.map(k => (
+                      <span key={k} className="px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded text-[10px] border border-rose-500/30">
+                        + {k}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="p-6 bg-slate-950 border border-slate-800/80 rounded-xl text-center space-y-1 text-slate-400 text-xs">
+                <p>No resume scanned yet. Paste your resume text above to evaluate keyword density for {selectedCompany}.</p>
+              </div>
+            )}
           </div>
         </div>
       )}
