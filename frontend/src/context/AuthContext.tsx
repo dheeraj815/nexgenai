@@ -185,8 +185,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       body: JSON.stringify(data),
     });
 
-    if (res.success && res.data?.user) {
-      setUser(res.data.user);
+    if (res.success) {
+      const updated = mapUser(res.data?.user || res.data);
+      setUser(updated);
       return true;
     }
     return false;

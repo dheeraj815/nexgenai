@@ -9,7 +9,9 @@ from backend.app.schemas.schemas import UserSignupRequest, UserLoginRequest, Tok
 router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/signup", response_model=TokenResponse)
+@router.post("/signup/", response_model=TokenResponse)
 @router.post("/register", response_model=TokenResponse)
+@router.post("/register/", response_model=TokenResponse)
 def signup(req: UserSignupRequest, db: Session = Depends(get_db)):
     existing = db.query(User).filter(User.email == req.email).first()
     if existing:
@@ -54,6 +56,7 @@ def signup(req: UserSignupRequest, db: Session = Depends(get_db)):
     }
 
 @router.post("/login", response_model=TokenResponse)
+@router.post("/login/", response_model=TokenResponse)
 def login(req: UserLoginRequest, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.email == req.email).first()
     if not user or not verify_password(req.password, user.hashed_password):
@@ -78,6 +81,7 @@ def login(req: UserLoginRequest, db: Session = Depends(get_db)):
     }
 
 @router.get("/me")
+@router.get("/me/")
 def get_me(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
     return {
@@ -102,6 +106,49 @@ def get_me(current_user: User = Depends(get_current_user), db: Session = Depends
         } if profile else None
     }
 
+@router.put("/profile")
+@router.put("/profile/")
+def update_profile_alias(data: dict, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    profile = db.query(Profile).filter(Profile.user_id == current_user.id).first()
+    if not profile:
+        profile = Profile(user_id=current_user.id, full_name="Student")
+        db.add(profile)
+    
+    if "targetRole" in data:
+        profile.target_role = data["targetRole"]
+    if "institutionName" in data:
+        profile.institution = data["institutionName"]
+    if "branch" in data:
+        profile.department = data["branch"]
+    if "graduationYear" in data and data["graduationYear"]:
+        profile.graduation_year = int(data["graduationYear"])
+    if "cgpa" in data and data["cgpa"]:
+        profile.cgpa = float(data["cgpa"])
+    if "onboardingCompleted" in data:
+        profile.is_onboarded = bool(data["onboardingCompleted"])
+    
+    db.commit()
+    db.refresh(profile)
+    return {
+        "user": {
+            "id": current_user.id,
+            "email": current_user.email,
+            "role": current_user.role,
+            "profile": {
+                "full_name": profile.full_name,
+                "academic_stage": profile.academic_stage,
+                "target_role": profile.target_role,
+                "institution": profile.institution,
+                "department": profile.department,
+                "graduation_year": profile.graduation_year,
+                "cgpa": profile.cgpa,
+                "is_onboarded": profile.is_onboarded,
+                "readiness_score": profile.readiness_score
+            }
+        }
+    }
+
 @router.post("/logout")
+@router.post("/logout/")
 def logout():
     return {"message": "Logged out successfully"}
