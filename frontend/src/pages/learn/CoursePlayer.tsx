@@ -8,6 +8,7 @@ import {
 import { apiRequest } from '../../api';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const CoursePlayer: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -23,6 +24,17 @@ export const CoursePlayer: React.FC = () => {
   const [quizFeedback, setQuizFeedback] = useState<string | null>(null);
   const [taskProofSubmitted, setTaskProofSubmitted] = useState<boolean>(false);
   const [showHelpDrawer, setShowHelpDrawer] = useState<boolean>(false);
+
+  // Stop speech when unmounting or switching lessons
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+    };
+  }, []);
+
+  useEffect(() => {
+    cancelAllSpeech();
+  }, [activeLesson?.id]);
 
   const loadCourseData = async () => {
     if (!slug) return;

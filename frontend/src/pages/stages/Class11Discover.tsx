@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Sparkles, Code2, Shield, Palette, Cpu, Terminal, Compass, 
-  ArrowRight, CheckCircle2, Play, Volume2, HelpCircle, RefreshCw, 
+  ArrowRight, CheckCircle2, Play, Volume2, VolumeX, HelpCircle, RefreshCw, 
   Star, Trophy, ChevronRight, BookOpen, Layers, Target, Check,
   Bot, Flame, Brain, Database, Globe, Lightbulb
 } from 'lucide-react';
@@ -10,6 +10,7 @@ import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
 import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const Class11Discover: React.FC = () => {
   const { 
@@ -21,6 +22,21 @@ export const Class11Discover: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'discovery' | 'foundations' | 'domains' | 'paths' | 'mentor'>('discovery');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when navigating away or unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs within Class 11
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
 
   // Tab 1: Career Discovery State (Starts clean)
   const [selectedInterests, setSelectedInterests] = useState<string[]>([]);
@@ -89,11 +105,25 @@ export const Class11Discover: React.FC = () => {
   };
 
   const handleVoiceMentorBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Welcome to Class 11 Tech Discovery! You currently have ${selectedInterests.length} selected interests and ${xpPoints} experience points. I recommend diving into the Python dynamic variables lesson in Domain Exploration next.`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Welcome to Class 11 Tech Discovery! You currently have ${selectedInterests.length} selected interests and ${xpPoints} experience points. I recommend diving into the Python dynamic variables lesson in Domain Exploration next.`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const foundationTopics = [
@@ -673,10 +703,15 @@ console.log("Total Payable:", total);`,
 
                 <button
                   onClick={handleVoiceMentorBriefing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-semibold hover:bg-blue-600/30 transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    isVoiceSpeaking
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                      : 'bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30'
+                  }`}
+                  title={isVoiceSpeaking ? 'Stop / Cut Voice Briefing' : 'Listen to Voice Briefing'}
                 >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>Voice Briefing</span>
+                  {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  <span>{isVoiceSpeaking ? 'Stop Voice' : 'Voice Briefing'}</span>
                 </button>
               </div>
 

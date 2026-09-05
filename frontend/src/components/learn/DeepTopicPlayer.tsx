@@ -9,6 +9,9 @@ import { AudioLessonBar } from '../voice/AudioLessonBar';
 import { IDontUnderstandDrawer } from './IDontUnderstandDrawer';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 
+import { cancelAllSpeech } from '../../utils/voiceUtils';
+import { useEffect } from 'react';
+
 interface DeepTopicPlayerProps {
   topic: DeepCurriculumTopic;
   onNextTopic?: () => void;
@@ -27,6 +30,13 @@ export const DeepTopicPlayer: React.FC<DeepTopicPlayerProps> = ({
   const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false);
   const [isProofClaimed, setIsProofClaimed] = useState<boolean>(false);
   const [showHelpDrawer, setShowHelpDrawer] = useState<boolean>(false);
+
+  // Clean up speech on unmount
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+    };
+  }, []);
 
   const handleRunSandbox = () => {
     try {
@@ -299,6 +309,16 @@ export const DeepTopicPlayer: React.FC<DeepTopicPlayerProps> = ({
           </div>
         </div>
       )}
+
+      {/* Adaptive AI & Voice Help Drawer */}
+      <IDontUnderstandDrawer
+        conceptTitle={topic.title}
+        conceptSummary={topic.concept}
+        codeSnippet={topic.codeExample}
+        defaultAnalogy={topic.analogy}
+        isOpen={showHelpDrawer}
+        onClose={() => setShowHelpDrawer(false)}
+      />
     </div>
   );
 };

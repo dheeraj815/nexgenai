@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   TrendingUp, Award, Layers, CheckCircle2, ChevronRight, 
   Star, Sparkles, BookOpen, Shield, Code2, Users
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const CareerGrowth: React.FC = () => {
   const [selectedLevel, setSelectedLevel] = useState<number>(1);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+    };
+  }, []);
 
   const ladder = [
     {

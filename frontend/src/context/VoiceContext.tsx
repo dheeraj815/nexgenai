@@ -61,6 +61,32 @@ export const VoiceProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     window.speechSynthesis.onvoiceschanged = loadVoices;
   }, [isTtsSupported]);
 
+  // Cancel speech and reset state on window navigation / page change
+  useEffect(() => {
+    if (!isTtsSupported) return;
+
+    const handleCancelOnNav = () => {
+      try {
+        window.speechSynthesis.cancel();
+      } catch (e) {
+        // ignore
+      }
+      setIsPlaying(false);
+      setIsPaused(false);
+    };
+
+    window.addEventListener('popstate', handleCancelOnNav);
+    window.addEventListener('pagehide', handleCancelOnNav);
+    window.addEventListener('beforeunload', handleCancelOnNav);
+
+    return () => {
+      handleCancelOnNav();
+      window.removeEventListener('popstate', handleCancelOnNav);
+      window.removeEventListener('pagehide', handleCancelOnNav);
+      window.removeEventListener('beforeunload', handleCancelOnNav);
+    };
+  }, [isTtsSupported]);
+
   // STT Initialization
   useEffect(() => {
     if (!isSttSupported) {

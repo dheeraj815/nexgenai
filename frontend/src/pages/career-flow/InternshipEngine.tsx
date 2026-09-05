@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Briefcase, Search, DollarSign, MapPin, Calendar, ArrowRight, 
   CheckCircle2, Clock, ShieldCheck, Award, FileText, Send, 
   Filter, Building2, UserCheck, Flame, Star, Sparkles, Target, 
-  Volume2, Bot, Check, ChevronRight, Bookmark, ThumbsUp
+  Volume2, VolumeX, Bot, Check, ChevronRight, Bookmark, ThumbsUp
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface InternshipRole {
   id: string;
@@ -32,6 +33,21 @@ export const InternshipEngine: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'find' | 'apply' | 'prep' | 'sim' | 'onboard' | 'track'>('find');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
   const [selectedRole, setSelectedRole] = useState<string>('int-1');
   const [searchTerm, setSearchTerm] = useState('');
   const [domainFilter, setDomainFilter] = useState('ALL');
@@ -151,11 +167,25 @@ export const InternshipEngine: React.FC = () => {
   };
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Internship Engine Briefing: You are reviewing the ${current.role} position at ${current.company} offering ${current.stipend}. Your skill match rate is ${matchRate} percent. Close your gap in ${gapSkills.join(', ')} to maximize your shortlist probability!`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Internship Engine Briefing: You are reviewing the ${current.role} position at ${current.company} offering ${current.stipend}. Your skill match rate is ${matchRate} percent. Close your gap in ${gapSkills.join(', ')} to maximize your shortlist probability!`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const filteredInternships = internships.filter(item => {
@@ -250,10 +280,15 @@ export const InternshipEngine: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleVoiceBriefing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold hover:bg-blue-600/30 transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isVoiceSpeaking
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                    : 'bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30'
+                }`}
+                title={isVoiceSpeaking ? 'Stop / Cut Audio Role Breakdown' : 'Listen to Audio Role Breakdown'}
               >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Audio Role Breakdown</span>
+                {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isVoiceSpeaking ? 'Stop Audio' : 'Audio Role Breakdown'}</span>
               </button>
             </div>
           </div>

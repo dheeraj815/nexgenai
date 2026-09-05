@@ -1,13 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, Search, DollarSign, Layers, CheckCircle2, 
   HelpCircle, Star, ArrowRight, ExternalLink, Code2, Users,
   Award, ShieldAlert, Sparkles, Clock, Target, Calendar,
-  ChevronRight, Brain, Briefcase, Zap, CheckCircle, Flame
+  ChevronRight, Brain, Briefcase, Zap, CheckCircle, Flame,
+  Volume2, VolumeX
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface CompanyData {
   id: string;
@@ -179,6 +181,42 @@ export const CompanyEngine: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'profile' | 'prepare' | 'questions' | 'rubric'>('prepare');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('ALL');
+  const [speakingQuestion, setSpeakingQuestion] = useState<string | null>(null);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setSpeakingQuestion(null);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setSpeakingQuestion(null);
+  }, [activeTab]);
+
+  const handleToggleSpeakQuestion = (q: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
+    }
+
+    if (speakingQuestion === q) {
+      cancelAllSpeech();
+      setSpeakingQuestion(null);
+      return;
+    }
+
+    cancelAllSpeech();
+    const utterance = new SpeechSynthesisUtterance(q);
+    utterance.rate = 0.95;
+    utterance.onend = () => setSpeakingQuestion(null);
+    utterance.onerror = () => setSpeakingQuestion(null);
+    setSpeakingQuestion(q);
+    window.speechSynthesis.speak(utterance);
+  };
 
   const current = COMPANIES[selectedCompanyId] || COMPANIES.google;
 
@@ -191,6 +229,8 @@ export const CompanyEngine: React.FC = () => {
   const matchRate = Math.round((matchedSkills.length / Math.max(1, current.requiredSkills.length)) * 100);
 
   const handleStartPrep = () => {
+    cancelAllSpeech();
+    setSpeakingQuestion(null);
     startCompanyPreparation(current.id, current.name, current.targetRole, current.requiredSkills);
     setActiveTab('prepare');
   };
@@ -651,16 +691,16 @@ export const CompanyEngine: React.FC = () => {
                   </div>
 
                   <button 
-                    onClick={() => {
-                      // Voice narration of question
-                      if ('speechSynthesis' in window) {
-                        const utterance = new SpeechSynthesisUtterance(item.q);
-                        window.speechSynthesis.speak(utterance);
-                      }
-                    }}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold rounded-lg shrink-0 transition-all"
+                    onClick={() => handleToggleSpeakQuestion(item.q)}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg shrink-0 transition-all ${
+                      speakingQuestion === item.q
+                        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                        : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                    }`}
+                    title={speakingQuestion === item.q ? 'Stop / Cut Voice Audio' : 'Listen to Question Audio'}
                   >
-                    <span>Listen & Practice</span>
+                    {speakingQuestion === item.q ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                    <span>{speakingQuestion === item.q ? 'Stop Voice' : 'Listen & Practice'}</span>
                   </button>
                 </div>
               ))}

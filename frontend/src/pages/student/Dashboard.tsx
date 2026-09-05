@@ -11,6 +11,7 @@ import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { apiRequest } from '../../api';
 import { calculateReadinessBreakdown, ReadinessBreakdown } from '../../utils/readinessEngine';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const Dashboard: React.FC = () => {
   const { user } = useAuth();
@@ -21,6 +22,14 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [showReadinessModal, setShowReadinessModal] = useState(false);
   const [isBriefingSpeaking, setIsBriefingSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsBriefingSpeaking(false);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -112,24 +121,24 @@ export const Dashboard: React.FC = () => {
 
   // AI Voice Daily Briefing
   const handleToggleVoiceBriefing = () => {
-    if (!('speechSynthesis' in window)) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
     if (isBriefingSpeaking) {
-      window.speechSynthesis.cancel();
+      cancelAllSpeech();
       setIsBriefingSpeaking(false);
       return;
     }
 
+    cancelAllSpeech();
     const script = `Good day! Welcome to NexGenAI. You are currently in ${currentStageConfig.stageName}. Your verified readiness score is ${readiness} percent. Here is what you should do today: ${currentStageConfig.todayTask}. Completing this action will unlock verified proof for your Career Passport. Let's make progress!`;
     const utterance = new SpeechSynthesisUtterance(script);
     utterance.rate = 0.95;
     utterance.onend = () => setIsBriefingSpeaking(false);
     utterance.onerror = () => setIsBriefingSpeaking(false);
 
-    window.speechSynthesis.cancel();
     window.speechSynthesis.speak(utterance);
     setIsBriefingSpeaking(true);
   };

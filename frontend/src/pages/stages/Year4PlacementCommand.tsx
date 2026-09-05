@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, DollarSign, CheckCircle2, AlertTriangle, 
   ArrowRight, Award, Layers, Star, Briefcase, FileText, 
-  Calendar, Clock, Target, Volume2, Sparkles, Check,
+  Calendar, Clock, Target, Volume2, VolumeX, Sparkles, Check,
   TrendingUp, Users, ShieldAlert, ChevronRight, Save, Edit3
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface DriveCompany {
   id: string;
@@ -33,6 +34,21 @@ export const Year4PlacementCommand: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'eligibility' | 'pipeline' | 'drives' | 'offers' | 'launch'>('eligibility');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
 
   // Interactive Academic Profile Input State
   const [inputCgpa, setInputCgpa] = useState<string>(academicProfile.cgpa > 0 ? String(academicProfile.cgpa) : '');
@@ -131,13 +147,27 @@ export const Year4PlacementCommand: React.FC = () => {
   const monthlyTakeHome = Math.round(annualTakeHome / 12);
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = isProfileConfigured
-        ? `Year 4 Placement Command: With your registered CGPA of ${currentCgpa}, you are eligible for ${drives.filter(d => currentCgpa >= d.minCgpa && currentBacklogs <= d.maxBacklogs).length} out of ${drives.length} active campus drives. Your overall readiness is currently ${readiness.overallScore} percent.`
-        : `Welcome to Year 4 Placement Command. Please enter your college CGPA and backlog status to evaluate your live eligibility across all active campus drives.`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = isProfileConfigured
+      ? `Year 4 Placement Command: With your registered CGPA of ${currentCgpa}, you are eligible for ${drives.filter(d => currentCgpa >= d.minCgpa && currentBacklogs <= d.maxBacklogs).length} out of ${drives.length} active campus drives. Your overall readiness is currently ${readiness.overallScore} percent.`
+      : `Welcome to Year 4 Placement Command. Please enter your college CGPA and backlog status to evaluate your live eligibility across all active campus drives.`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -223,10 +253,15 @@ export const Year4PlacementCommand: React.FC = () => {
 
               <button
                 onClick={handleVoiceBriefing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-600/20 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-bold hover:bg-rose-600/30 transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isVoiceSpeaking
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                    : 'bg-rose-600/20 text-rose-300 border border-rose-500/30 hover:bg-rose-600/30'
+                }`}
+                title={isVoiceSpeaking ? 'Stop / Cut Audio Eligibility Check' : 'Listen to Audio Eligibility Check'}
               >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Audio Eligibility Check</span>
+                {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isVoiceSpeaking ? 'Stop Audio' : 'Audio Eligibility Check'}</span>
               </button>
             </div>
 

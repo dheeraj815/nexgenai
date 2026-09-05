@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Mic, MicOff, Volume2, VolumeX, Play, Pause, Sparkles, 
   CheckCircle2, AlertCircle, Star, MessageSquare, ArrowRight, 
@@ -7,6 +7,7 @@ import {
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const InterviewPrepEngine: React.FC = () => {
   const { recordMockInterview } = useCareerJourney();
@@ -20,6 +21,20 @@ export const InterviewPrepEngine: React.FC = () => {
     confidence: number;
     feedback: string;
   } | null>(null);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsSpeakingQuestion(false);
+    };
+  }, []);
+
+  // Stop speech when navigating to another question
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsSpeakingQuestion(false);
+  }, [currentQuestionIndex]);
 
   const questions = [
     {
@@ -49,17 +64,18 @@ export const InterviewPrepEngine: React.FC = () => {
 
   // Speak question out loud
   const handleSpeakQuestion = () => {
-    if (!('speechSynthesis' in window)) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in this browser.');
       return;
     }
 
-    window.speechSynthesis.cancel();
     if (isSpeakingQuestion) {
+      cancelAllSpeech();
       setIsSpeakingQuestion(false);
       return;
     }
 
+    cancelAllSpeech();
     const utterance = new SpeechSynthesisUtterance(q.question);
     utterance.rate = 0.95;
     utterance.onend = () => setIsSpeakingQuestion(false);
@@ -202,12 +218,13 @@ export const InterviewPrepEngine: React.FC = () => {
               onClick={handleSpeakQuestion}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all ${
                 isSpeakingQuestion
-                  ? 'bg-pink-600 text-white animate-pulse'
+                  ? 'bg-rose-600 text-white animate-pulse'
                   : 'bg-slate-800 text-slate-300 hover:text-white'
               }`}
+              title={isSpeakingQuestion ? 'Stop / Cut Question Voice' : 'Listen Question (AI Voice)'}
             >
               {isSpeakingQuestion ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
-              <span>{isSpeakingQuestion ? 'Speaking...' : 'Listen Question (AI Voice)'}</span>
+              <span>{isSpeakingQuestion ? 'Stop Voice' : 'Listen Question (AI Voice)'}</span>
             </button>
           </div>
 

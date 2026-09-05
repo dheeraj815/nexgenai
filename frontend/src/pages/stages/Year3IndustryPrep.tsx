@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Building2, FileText, CheckCircle2, AlertTriangle, Play, 
   HelpCircle, ArrowRight, Award, Layers, Star, Code2, 
-  Terminal, ChevronRight, Upload, Sparkles, Volume2, Target,
+  Terminal, ChevronRight, Upload, Sparkles, Volume2, VolumeX, Target,
   Flame, ShieldAlert, Check, Users, Brain, Calendar
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const Year3IndustryPrep: React.FC = () => {
   const { 
@@ -22,6 +23,21 @@ export const Year3IndustryPrep: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'gap' | 'ats' | 'interview' | 'capstone' | 'intel'>('gap');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
   const [selectedCompany, setSelectedCompany] = useState<string>('Google');
 
   // Interactive ATS Studio State (No Dummy Data)
@@ -95,11 +111,25 @@ export const Year3IndustryPrep: React.FC = () => {
   };
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Year 3 Industry Preparation Briefing: Year 3 is where you turn raw coding skills into high-paying placements. Your skill match for ${selectedCompany} is currently ${matchPercentage} percent. You need to close gaps in ${missingSkills.join(', ')}. Launch your 4-week roadmap now!`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Year 3 Industry Preparation Briefing: Year 3 is where you turn raw coding skills into high-paying placements. Your skill match for ${selectedCompany} is currently ${matchPercentage} percent. You need to close gaps in ${missingSkills.join(', ')}. Launch your 4-week roadmap now!`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   return (
@@ -185,10 +215,15 @@ export const Year3IndustryPrep: React.FC = () => {
 
               <button
                 onClick={handleVoiceBriefing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold hover:bg-amber-500/30 transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isVoiceSpeaking
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                    : 'bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:bg-amber-500/30'
+                }`}
+                title={isVoiceSpeaking ? 'Stop / Cut Voice Briefing' : 'Listen to Voice Briefing'}
               >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Voice Briefing</span>
+                {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isVoiceSpeaking ? 'Stop Voice' : 'Voice Briefing'}</span>
               </button>
             </div>
 

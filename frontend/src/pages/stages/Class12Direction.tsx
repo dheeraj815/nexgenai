@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   GitBranch, GraduationCap, Award, Compass, ArrowRight, 
   CheckCircle2, ExternalLink, BookOpen, Layers, Star, 
   Terminal, Shield, Cpu, ChevronRight, FileText, Check, Trophy,
-  Github, Globe, Calendar, Bot, Volume2, Target, Lightbulb,
+  Github, Globe, Calendar, Bot, Volume2, VolumeX, Target, Lightbulb,
   Building, Sparkles, AlertCircle
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const Class12Direction: React.FC = () => {
   const { 
@@ -21,6 +22,21 @@ export const Class12Direction: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'degree' | 'git' | 'portfolio' | 'industry' | 'direction'>('degree');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
   const [selectedDegree, setSelectedDegree] = useState<'btech_cse' | 'btech_ai' | 'cyber' | 'bca'>('btech_cse');
   const [compareDegree, setCompareDegree] = useState<'btech_ai' | 'cyber' | 'bca' | null>('btech_ai');
 
@@ -132,11 +148,25 @@ export const Class12Direction: React.FC = () => {
   };
 
   const handleVoiceRoadmap = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Class 12 Pre-College Roadmap: During your final school year, dedicate 3 hours per week to building your GitHub portfolio. If you choose B.Tech Computer Science, your goal is to master Git and write your first 50 lines of Python before day one of college.`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Class 12 Pre-College Roadmap: During your final school year, dedicate 3 hours per week to building your GitHub portfolio. If you choose B.Tech Computer Science, your goal is to master Git and write your first 50 lines of Python before day one of college.`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const currentDegree = degreeData[selectedDegree];
@@ -490,10 +520,15 @@ export const Class12Direction: React.FC = () => {
 
               <button
                 onClick={handleVoiceRoadmap}
-                className="flex items-center gap-1.5 px-4 py-2 bg-purple-600/20 text-purple-300 border border-purple-500/30 rounded-xl text-xs font-bold hover:bg-purple-600/30 transition-all"
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+                  isVoiceSpeaking
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                    : 'bg-purple-600/20 text-purple-300 border border-purple-500/30 hover:bg-purple-600/30'
+                }`}
+                title={isVoiceSpeaking ? 'Stop / Cut Roadmap Audio' : 'Listen to Roadmap Audio'}
               >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Listen to Roadmap Audio</span>
+                {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isVoiceSpeaking ? 'Stop Audio' : 'Listen to Roadmap Audio'}</span>
               </button>
             </div>
 

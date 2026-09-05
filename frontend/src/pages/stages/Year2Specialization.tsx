@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Cpu, Code2, Shield, Cloud, CheckCircle2, AlertTriangle, 
   Play, HelpCircle, ArrowRight, Award, Layers, Star, 
-  Terminal, ChevronRight, Activity, Flame, Bot, Volume2,
+  Terminal, ChevronRight, Activity, Flame, Bot, Volume2, VolumeX,
   Check, RefreshCw, Zap
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
@@ -10,6 +10,7 @@ import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
 import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface SocAlert {
   id: string;
@@ -30,6 +31,21 @@ export const Year2Specialization: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'tracks' | 'curriculum' | 'soc' | 'certs' | 'prep'>('tracks');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
   const [selectedTrack, setSelectedTrack] = useState<'ai' | 'web' | 'cyber' | 'cloud'>('ai');
   const [activeDeepTopicMeta, setActiveDeepTopicMeta] = useState<{ id: string; title: string; domain: string } | null>(null);
 
@@ -72,11 +88,25 @@ export const Year2Specialization: React.FC = () => {
   };
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Year 2 Specialization Briefing: You have selected the ${selectedTrack.toUpperCase()} pathway. At this stage, focus on building depth. Master end-to-end deployment, run security simulations, and prepare for your first summer internship.`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Year 2 Specialization Briefing: You have selected the ${selectedTrack.toUpperCase()} pathway. At this stage, focus on building depth. Master end-to-end deployment, run security simulations, and prepare for your first summer internship.`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const trackData = {
@@ -494,10 +524,15 @@ export const Year2Specialization: React.FC = () => {
 
               <button
                 onClick={handleVoiceBriefing}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 rounded-lg text-xs font-bold hover:bg-cyan-600/30 transition-all"
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  isVoiceSpeaking
+                    ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                    : 'bg-cyan-600/20 text-cyan-300 border border-cyan-500/30 hover:bg-cyan-600/30'
+                }`}
+                title={isVoiceSpeaking ? 'Stop / Cut Voice Assessment' : 'Listen to Voice Assessment'}
               >
-                <Volume2 className="w-3.5 h-3.5" />
-                <span>Voice Assessment</span>
+                {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                <span>{isVoiceSpeaking ? 'Stop Voice' : 'Voice Assessment'}</span>
               </button>
             </div>
 

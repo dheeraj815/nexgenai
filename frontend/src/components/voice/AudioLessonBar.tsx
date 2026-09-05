@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Volume2, VolumeX, Play, Pause, RotateCcw, FastForward } from 'lucide-react';
+import { Volume2, VolumeX, Play, Pause, Square, RotateCcw, FastForward } from 'lucide-react';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface AudioLessonBarProps {
   title: string;
@@ -17,15 +18,23 @@ export const AudioLessonBar: React.FC<AudioLessonBarProps> = ({
   const [hasVoiceSupport, setHasVoiceSupport] = useState(true);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
+  // Check support and clean up on unmount
   useEffect(() => {
-    if (!('speechSynthesis' in window)) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       setHasVoiceSupport(false);
     }
 
     return () => {
-      window.speechSynthesis?.cancel();
+      cancelAllSpeech();
+      setIsPlaying(false);
     };
   }, []);
+
+  // Cancel speech whenever the lesson script or title changes
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsPlaying(false);
+  }, [scriptText, title]);
 
   const handleTogglePlay = () => {
     if (!hasVoiceSupport) {
@@ -34,37 +43,39 @@ export const AudioLessonBar: React.FC<AudioLessonBarProps> = ({
     }
 
     if (isPlaying) {
-      window.speechSynthesis.pause();
+      cancelAllSpeech();
       setIsPlaying(false);
     } else {
-      if (window.speechSynthesis.paused) {
-        window.speechSynthesis.resume();
-        setIsPlaying(true);
-      } else {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(scriptText);
-        utterance.rate = rate;
-        utterance.pitch = 1.0;
-        utterance.onend = () => {
-          setIsPlaying(false);
-          if (onEnded) onEnded();
-        };
-        utterance.onerror = () => setIsPlaying(false);
-        utteranceRef.current = utterance;
-        window.speechSynthesis.speak(utterance);
-        setIsPlaying(true);
-      }
+      cancelAllSpeech();
+      const utterance = new SpeechSynthesisUtterance(scriptText);
+      utterance.rate = rate;
+      utterance.pitch = 1.0;
+      utterance.onend = () => {
+        setIsPlaying(false);
+        if (onEnded) onEnded();
+      };
+      utterance.onerror = () => setIsPlaying(false);
+      utteranceRef.current = utterance;
+      window.speechSynthesis.speak(utterance);
+      setIsPlaying(true);
     }
   };
 
+  const handleStop = () => {
+    cancelAllSpeech();
+    setIsPlaying(false);
+  };
+
   const handleRestart = () => {
-    window.speechSynthesis?.cancel();
+    cancelAllSpeech();
     const utterance = new SpeechSynthesisUtterance(scriptText);
     utterance.rate = rate;
+    utterance.pitch = 1.0;
     utterance.onend = () => {
       setIsPlaying(false);
       if (onEnded) onEnded();
     };
+    utterance.onerror = () => setIsPlaying(false);
     utteranceRef.current = utterance;
     window.speechSynthesis.speak(utterance);
     setIsPlaying(true);
@@ -88,10 +99,20 @@ export const AudioLessonBar: React.FC<AudioLessonBarProps> = ({
               ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-2 ring-indigo-400'
               : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/40 hover:bg-indigo-500/30'
           }`}
-          title={isPlaying ? 'Pause Audio' : 'Listen to Audio Lesson'}
+          title={isPlaying ? 'Pause / Stop Audio' : 'Listen to Audio Lesson'}
         >
           {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" />}
         </button>
+
+        {isPlaying && (
+          <button
+            onClick={handleStop}
+            className="w-8 h-8 rounded-lg flex items-center justify-center bg-rose-500/20 text-rose-300 border border-rose-500/40 hover:bg-rose-500/30 transition-all"
+            title="Cut / Stop Voice Audio"
+          >
+            <Square className="w-3.5 h-3.5 fill-current" />
+          </button>
+        )}
 
         <div>
           <div className="flex items-center gap-2">
@@ -101,7 +122,7 @@ export const AudioLessonBar: React.FC<AudioLessonBarProps> = ({
             </span>
           </div>
           <p className="text-[11px] text-slate-400 truncate max-w-[200px] sm:max-w-xs">
-            {isPlaying ? 'Playing: ' + title : 'Listen along while reading or coding'}
+            {isPlaying ? 'Speaking: ' + title : 'Listen along while reading or coding'}
           </p>
         </div>
       </div>

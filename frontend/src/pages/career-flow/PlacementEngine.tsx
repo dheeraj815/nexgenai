@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { 
   Building2, Calendar, Clock, CheckCircle2, AlertCircle, 
   HelpCircle, ArrowRight, Star, FileText, Users, Award,
-  DollarSign, Target, Check, Sparkles, Volume2, Bot,
+  DollarSign, Target, Check, Sparkles, Volume2, VolumeX, Bot,
   Flame, ChevronRight, ShieldCheck, Play
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 interface PlacementDrive {
   id: string;
@@ -33,6 +34,21 @@ export const PlacementEngine: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState<'drives' | 'profiles' | 'gap' | 'hub' | 'mock'>('drives');
   const [selectedDriveId, setSelectedDriveId] = useState<string>('drv-google');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
 
   // Registration Tracker (Starts clean)
   const [registeredDrives, setRegisteredDrives] = useState<string[]>([]);
@@ -149,11 +165,25 @@ export const PlacementEngine: React.FC = () => {
   };
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Placement Engine Status: You are registered for ${registeredDrives.length} active campus placement drives. Your next round is with ${currentDrive.company} on ${currentDrive.date}. Launch your target 4-week roadmap to clear the technical cutoff!`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Placement Engine Status: You are registered for ${registeredDrives.length} active campus placement drives. Your next round is with ${currentDrive.company} on ${currentDrive.date}. Launch your target 4-week roadmap to clear the technical cutoff!`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const minutes = Math.floor(timerSeconds / 60);
@@ -237,10 +267,15 @@ export const PlacementEngine: React.FC = () => {
 
             <button
               onClick={handleVoiceBriefing}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold hover:bg-blue-600/30 transition-all"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                isVoiceSpeaking
+                  ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                  : 'bg-blue-600/20 text-blue-300 border border-blue-500/30 hover:bg-blue-600/30'
+              }`}
+              title={isVoiceSpeaking ? 'Stop / Cut Drive Audio Briefing' : 'Listen to Drive Audio Briefing'}
             >
-              <Volume2 className="w-3.5 h-3.5" />
-              <span>Drive Audio Briefing</span>
+              {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+              <span>{isVoiceSpeaking ? 'Stop Audio' : 'Drive Audio Briefing'}</span>
             </button>
           </div>
 

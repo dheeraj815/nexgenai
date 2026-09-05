@@ -5,6 +5,8 @@ import {
   Mic, MicOff, RefreshCw, X, Play, Pause, ChevronRight
 } from 'lucide-react';
 
+import { cancelAllSpeech } from '../../utils/voiceUtils';
+
 interface IDontUnderstandDrawerProps {
   conceptTitle: string;
   conceptSummary?: string;
@@ -27,6 +29,10 @@ export const IDontUnderstandDrawer: React.FC<IDontUnderstandDrawerProps> = ({
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isOpen = controlledIsOpen !== undefined ? controlledIsOpen : internalIsOpen;
   const setIsOpen = (val: boolean) => {
+    if (!val) {
+      cancelAllSpeech();
+      setIsSpeaking(false);
+    }
     if (controlledOnClose && !val) controlledOnClose();
     setInternalIsOpen(val);
   };
@@ -39,27 +45,39 @@ export const IDontUnderstandDrawer: React.FC<IDontUnderstandDrawerProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [understoodMarked, setUnderstoodMarked] = useState(false);
 
-  // Stop speech when drawer closes
+  // Stop speech when drawer closes or unmounts
   useEffect(() => {
-    if (!isOpen && isSpeaking) {
-      window.speechSynthesis?.cancel();
+    if (!isOpen) {
+      cancelAllSpeech();
       setIsSpeaking(false);
     }
-  }, [isOpen, isSpeaking]);
 
-  // Speech synthesis helper
+    return () => {
+      cancelAllSpeech();
+      setIsSpeaking(false);
+    };
+  }, [isOpen]);
+
+  // Stop speech when user switches tabs within drawer
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsSpeaking(false);
+  }, [activeTab]);
+
+  // Speech synthesis helper with toggle/cut support
   const speakText = (text: string) => {
-    if (!('speechSynthesis' in window)) {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
       alert('Speech synthesis is not supported in your browser.');
       return;
     }
 
-    window.speechSynthesis.cancel();
     if (isSpeaking) {
+      cancelAllSpeech();
       setIsSpeaking(false);
       return;
     }
 
+    cancelAllSpeech();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.95;
     utterance.pitch = 1.0;
@@ -135,6 +153,8 @@ demonstrateConcept("Ready to learn");`;
   };
 
   const handleMarkUnderstood = () => {
+    cancelAllSpeech();
+    setIsSpeaking(false);
     setUnderstoodMarked(true);
     if (onUnderstood) onUnderstood();
     setTimeout(() => {
@@ -298,10 +318,7 @@ demonstrateConcept("Ready to learn");`;
               </button>
 
               <button
-                onClick={() => {
-                  setActiveTab('voice');
-                  speakText(voiceExplanation);
-                }}
+                onClick={() => setActiveTab('voice')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
                   activeTab === 'voice'
                     ? 'bg-pink-500/20 text-pink-300 border border-pink-500/40'

@@ -1,15 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Terminal, Code2, BookOpen, Layers, CheckCircle2, Play, 
   HelpCircle, ArrowRight, Award, Compass, Cpu, Database, 
   Server, Globe, ChevronRight, Star, Flame, Sparkles, Check,
-  Bot, Volume2, Target, ShieldCheck
+  Bot, Volume2, VolumeX, Target, ShieldCheck
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
 import { useCareerJourney } from '../../context/CareerJourneyContext';
 import { DeepTopicPlayer } from '../../components/learn/DeepTopicPlayer';
 import { DEEP_CURRICULUM_DATABASE, getCurriculumTopic } from '../../data/curriculumData';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const Year1Foundation: React.FC = () => {
   const { 
@@ -23,6 +24,21 @@ export const Year1Foundation: React.FC = () => {
   } = useCareerJourney();
 
   const [activeTab, setActiveTab] = useState<'languages' | 'cs' | 'projects' | 'arena' | 'career'>('languages');
+  const [isVoiceSpeaking, setIsVoiceSpeaking] = useState(false);
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+    };
+  }, []);
+
+  // Stop speech when switching tabs
+  useEffect(() => {
+    cancelAllSpeech();
+    setIsVoiceSpeaking(false);
+  }, [activeTab]);
   const [selectedLanguage, setSelectedLanguage] = useState<'python' | 'java' | 'cpp'>('python');
   const [activeDeepTopicMeta, setActiveDeepTopicMeta] = useState<{ id: string; title: string; domain: string } | null>(null);
 
@@ -75,11 +91,25 @@ export const Year1Foundation: React.FC = () => {
   };
 
   const handleVoiceBriefing = () => {
-    if ('speechSynthesis' in window) {
-      const text = `Welcome to Year 1 Engineering Foundation! Your mission is to master memory allocation, pointers, and data structures. You have currently solved ${solvedProblems.length} algorithmic challenges and earned ${xpPoints} XP. Keep coding daily!`;
-      const utterance = new SpeechSynthesisUtterance(text);
-      window.speechSynthesis.speak(utterance);
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      alert('Speech synthesis is not supported in your browser.');
+      return;
     }
+
+    if (isVoiceSpeaking) {
+      cancelAllSpeech();
+      setIsVoiceSpeaking(false);
+      return;
+    }
+
+    cancelAllSpeech();
+    const text = `Welcome to Year 1 Engineering Foundation! Your mission is to master memory allocation, pointers, and data structures. You have currently solved ${solvedProblems.length} algorithmic challenges and earned ${xpPoints} XP. Keep coding daily!`;
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.rate = 0.95;
+    utterance.onend = () => setIsVoiceSpeaking(false);
+    utterance.onerror = () => setIsVoiceSpeaking(false);
+    setIsVoiceSpeaking(true);
+    window.speechSynthesis.speak(utterance);
   };
 
   const csTopics = [
@@ -493,10 +523,15 @@ export const Year1Foundation: React.FC = () => {
                 </div>
                 <button
                   onClick={handleVoiceBriefing}
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold hover:bg-emerald-600/30 transition-all"
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                    isVoiceSpeaking
+                      ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40 animate-pulse'
+                      : 'bg-emerald-600/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-600/30'
+                  }`}
+                  title={isVoiceSpeaking ? 'Stop / Cut Voice Summary' : 'Listen to Voice Summary'}
                 >
-                  <Volume2 className="w-3.5 h-3.5" />
-                  <span>Voice Summary</span>
+                  {isVoiceSpeaking ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  <span>{isVoiceSpeaking ? 'Stop Voice' : 'Voice Summary'}</span>
                 </button>
               </div>
 

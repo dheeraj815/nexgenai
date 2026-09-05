@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Award, CheckCircle2, DollarSign, Calendar, Clock, 
   ArrowRight, ShieldCheck, FileCheck, Star, Sparkles
 } from 'lucide-react';
 import { IDontUnderstandDrawer } from '../../components/learn/IDontUnderstandDrawer';
 import { AudioLessonBar } from '../../components/voice/AudioLessonBar';
+import { cancelAllSpeech } from '../../utils/voiceUtils';
 
 export const OfferLaunch: React.FC = () => {
   const [ctcInput, setCtcInput] = useState<number>(18); // 18 LPA
+
+  // Stop speech when unmounting
+  useEffect(() => {
+    return () => {
+      cancelAllSpeech();
+    };
+  }, []);
 
   // CTC Calculations
   const totalLakhs = ctcInput;
