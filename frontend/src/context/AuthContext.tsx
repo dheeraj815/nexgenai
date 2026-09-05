@@ -100,7 +100,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [viewRole, setViewRole] = useState<string>('STUDENT');
 
+  // Migrate cached localStorage: strip dummy institution names and fake cgpa that may have been stored from old code
+  const migrateDummyData = () => {
+    try {
+      const DUMMY_INSTITUTIONS = ['Delhi Public School', 'National Institute of Technology'];
+      const DUMMY_DEPARTMENTS = ['Science & Computing', 'Computer Science & Engineering'];
+
+      const raw = localStorage.getItem('nexgenai_user');
+      if (!raw) return;
+      const u = JSON.parse(raw);
+      let changed = false;
+
+      if (u?.profile) {
+        if (DUMMY_INSTITUTIONS.includes(u.profile.institution)) { u.profile.institution = ''; changed = true; }
+        if (DUMMY_INSTITUTIONS.includes(u.profile.institutionName)) { u.profile.institutionName = ''; changed = true; }
+        if (DUMMY_DEPARTMENTS.includes(u.profile.department)) { u.profile.department = ''; changed = true; }
+        if (DUMMY_DEPARTMENTS.includes(u.profile.branch)) { u.profile.branch = ''; changed = true; }
+        // If cgpa was set to exactly 8.5 or 9.0 (the old auto-seed values), reset to 0
+        if (u.profile.cgpa === 9.0 || u.profile.cgpa === 8.5) { u.profile.cgpa = 0.0; changed = true; }
+        if (u.profile.target_role === 'Software Engineering & AI') { u.profile.target_role = ''; changed = true; }
+        if (u.profile.targetRole === 'Software Engineering & AI') { u.profile.targetRole = ''; changed = true; }
+      }
+
+      if (changed) {
+        localStorage.setItem('nexgenai_user', JSON.stringify(u));
+        // Also fix registered_users store
+        const regRaw = localStorage.getItem('nexgenai_registered_users');
+        if (regRaw) {
+          const users = JSON.parse(regRaw);
+          if (Array.isArray(users)) {
+            const updated = users.map((ru: any) => {
+              if (DUMMY_INSTITUTIONS.includes(ru.institution)) ru.institution = '';
+              if (DUMMY_DEPARTMENTS.includes(ru.department)) ru.department = '';
+              if (ru.cgpa === 9.0 || ru.cgpa === 8.5) ru.cgpa = 0.0;
+              if (ru.target_role === 'Software Engineering & AI') ru.target_role = '';
+              return ru;
+            });
+            localStorage.setItem('nexgenai_registered_users', JSON.stringify(updated));
+          }
+        }
+      }
+    } catch { /* silent */ }
+  };
+
   const refreshUser = async () => {
+    migrateDummyData(); // Always run migration first
     const savedToken = localStorage.getItem('nexgenai_token');
     if (!savedToken) {
       setUser(null);

@@ -108,7 +108,7 @@ export const CareerJourneyProvider: React.FC<{ children: React.ReactNode }> = ({
       cgpa: 0,
       backlogs: 0,
       collegeName: '',
-      branch: 'Computer Science & Engineering',
+      branch: '',
       graduationYear: 2027
     };
   });

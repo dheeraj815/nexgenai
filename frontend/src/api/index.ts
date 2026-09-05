@@ -246,10 +246,10 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
       academic_stage: stage,
       target_role: targetRole,
       readiness_score: initialScore,
-      institution: body.institution || (stage.startsWith('CLASS') ? 'Delhi Public School' : 'National Institute of Technology'),
-      department: body.department || (stage.startsWith('CLASS') ? 'Science & Computing' : 'Computer Science & Engineering'),
-      graduation_year: 2028,
-      cgpa: 9.0
+      institution: body.institution || '',
+      department: body.department || '',
+      graduation_year: body.graduationYear || body.graduation_year || 2028,
+      cgpa: body.cgpa !== undefined ? body.cgpa : 0.0
     };
 
     saveRegisteredUser(newUserRecord);
@@ -275,9 +275,9 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
         institutionName: newUserRecord.institution,
         department: newUserRecord.department,
         branch: newUserRecord.department,
-        graduation_year: 2028,
-        graduationYear: 2028,
-        cgpa: 9.0,
+        graduation_year: newUserRecord.graduation_year || 2028,
+        graduationYear: newUserRecord.graduation_year || 2028,
+        cgpa: newUserRecord.cgpa || 0.0,
         target_role: targetRole,
         targetRole: targetRole,
         is_onboarded: true,
@@ -352,15 +352,15 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
         lastName,
         academic_stage: userRecord.academic_stage || 'CLASS_11',
         academicStage: userRecord.academic_stage || 'CLASS_11',
-        institution: userRecord.institution || 'National Institute of Technology',
-        institutionName: userRecord.institution || 'National Institute of Technology',
-        department: userRecord.department || 'Computer Science & Engineering',
-        branch: userRecord.department || 'Computer Science & Engineering',
+        institution: userRecord.institution || '',
+        institutionName: userRecord.institution || '',
+        department: userRecord.department || '',
+        branch: userRecord.department || '',
         graduation_year: userRecord.graduation_year || 2027,
         graduationYear: userRecord.graduation_year || 2027,
-        cgpa: userRecord.cgpa || 8.5,
-        target_role: userRecord.target_role || 'Software Engineering & AI',
-        targetRole: userRecord.target_role || 'Software Engineering & AI',
+        cgpa: userRecord.cgpa || 0.0,
+        target_role: userRecord.target_role || '',
+        targetRole: userRecord.target_role || '',
         is_onboarded: true,
         readiness_score: userRecord.readiness_score !== undefined ? userRecord.readiness_score : 0.0,
         readinessScore: userRecord.readiness_score !== undefined ? userRecord.readiness_score : 0.0,
@@ -412,65 +412,31 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     return { success: true, data: { user, status: 'SUCCESS' } };
   }
 
-  // 5. Passport (Stage-aware)
+  // 5. Passport (Stage-aware) – returns ONLY real user data, zero dummy defaults
   if (endpoint.includes('/passport')) {
     const user: any = getStoredUser() || {};
-    const stage = user?.profile?.academicStage || user?.academic_stage || 'CLASS_11';
-    const isClass11 = stage === 'CLASS_11';
-    const isClass12 = stage === 'CLASS_12';
-    const isYear4 = stage === 'YEAR_4';
-
-    const defaultSkills = isClass11 ? [
-      { id: 'sk-1', name: 'Computational Thinking', status: 'VERIFIED', verified: true, level: 'Foundational', evidenceCount: 2 },
-      { id: 'sk-2', name: 'Algorithmic Decomposition', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 2 },
-      { id: 'sk-3', name: 'Python Basics & Logic Gates', status: 'VERIFIED', verified: true, level: 'Foundational', evidenceCount: 1 },
-      { id: 'sk-4', name: 'Binary Data Representation', status: 'CLAIMED', verified: false, level: 'Beginner', evidenceCount: 0 }
-    ] : [
-      { id: 'sk-1', name: 'Python Engineering', status: 'VERIFIED', verified: true, level: 'Advanced', evidenceCount: 4 },
-      { id: 'sk-2', name: 'FastAPI Microservices', status: 'VERIFIED', verified: true, level: 'Advanced', evidenceCount: 3 },
-      { id: 'sk-3', name: 'System Design & Scalability', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 3 },
-      { id: 'sk-4', name: 'Cloud & Docker Containers', status: 'VERIFIED', verified: true, level: 'Intermediate', evidenceCount: 2 }
-    ];
-
-    const defaultProjects = isClass11 ? [
-      { id: 'pr-1', title: 'Interactive Algorithmic Logic Sandbox', status: 'COMPLETED', completed: true, role: 'Creator', stars: 16, techStack: ['Python', 'Logic Gates'] }
-    ] : [
-      { id: 'pr-1', title: 'High-Throughput Distributed Cache', status: 'COMPLETED', completed: true, role: 'Lead Architect', stars: 42, techStack: ['Python', 'Redis', 'Docker'] },
-      { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', status: 'COMPLETED', completed: true, role: 'Security Engineer', stars: 28, techStack: ['Python', 'Elasticsearch', 'Splunk'] }
-    ];
+    const profile = user.profile || {
+      full_name: user.full_name || '',
+      academic_stage: user?.academic_stage || 'CLASS_11',
+      institution: '',
+      institutionName: '',
+      target_role: '',
+      cgpa: 0.0
+    };
 
     const passportData = {
-      profile: user.profile || {
-        full_name: user.full_name || 'Candidate',
-        academic_stage: stage,
-        institution: 'National Institute of Technology',
-        target_role: 'Software Engineering & AI',
-        cgpa: 9.0
-      },
+      profile,
       readiness: {
-        overallScore: user.profile?.readiness_score !== undefined ? user.profile.readiness_score : 0.0,
-        foundations: isClass11 ? 90 : 85,
-        domainSpecialization: isClass11 ? 65 : 82,
-        practicalProof: isClass11 ? 70 : 80,
-        industryReadiness: isClass11 ? 62 : 90
+        overallScore: profile.readiness_score || profile.readinessScore || 0.0
       },
-      skills: defaultSkills,
-      projects: defaultProjects,
-      codingSubmissions: [
-        { id: 'sub-1', problemTitle: 'Optimal Skill Pairing (Two Sum)', status: 'ACCEPTED', passed: true, score: 100 }
-      ],
-      socIncidentAttempts: [
-        { incidentTitle: 'SSH Brute-Force Triage', score: 95, status: 'RESOLVED', passed: true }
-      ],
-      systemDesignDiagrams: [
-        { title: 'Scalable URL Shortener Architecture', approved: true, score: 92 }
-      ],
-      resumes: [
-        { ats_score: 88, filename: 'NexGen_Master_Resume.pdf' }
-      ],
-      offers: isYear4 ? [
-        { company: 'NextGen Cloud Technologies', role: 'Software Engineer - AI Platforms', ctc: '18 LPA', status: 'OFFER_EXTENDED' }
-      ] : []
+      // All arrays start empty – real entries are stored in nexgenai_career_journey_v3 localStorage
+      skills: [],
+      projects: [],
+      codingSubmissions: [],
+      socIncidentAttempts: [],
+      systemDesignDiagrams: [],
+      resumes: [],
+      offers: []
     };
 
     return { success: true, data: { passport: passportData } };
@@ -597,7 +563,7 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     return {
       success: true,
       data: {
-        resumes: [{ id: 'res_default', title: 'NexGenAI Master Resume', ats_score: 88 }]
+        resumes: []
       }
     };
   }
@@ -731,30 +697,25 @@ function handleMockRequest(endpoint: string, options: RequestInit = {}): { succe
     return { success: true, data: { skills: MOCK_SKILL_TREE_NODES } };
   }
 
-  // 16. Projects & Portfolio
+  // 16. Projects & Portfolio – returns only real user projects stored in journey context
   if (endpoint.includes('/projects')) {
-    return {
-      success: true,
-      data: {
-        projects: [
-          { id: 'pr-1', title: 'High-Throughput Distributed Cache', description: 'Production-grade distributed cache in Python & Redis with consistent hashing.', githubUrl: 'https://github.com/project/distributed-cache', verified: true, stars: 34 },
-          { id: 'pr-2', title: 'Enterprise SIEM Log Analyzer', description: 'Automated brute-force and threat detection parser with Splunk integration.', githubUrl: 'https://github.com/project/siem-analyzer', verified: true, stars: 27 }
-        ]
-      }
-    };
+    // POST: create new project – store in career journey context (handled client-side)
+    if (options.method === 'POST') {
+      return { success: true, data: { project: { id: 'pr_' + Date.now(), ...body, status: body.status || 'IN_PROGRESS' } } };
+    }
+    // DELETE
+    if (options.method === 'DELETE') {
+      return { success: true, data: { status: 'DELETED' } };
+    }
+    // GET – real projects come from CareerJourneyContext / localStorage; return empty so UI uses context
+    return { success: true, data: { projects: [] } };
   }
 
   // 17. Jobs & Opportunities
   if (endpoint.includes('/jobs')) {
     if (endpoint.includes('/applications')) {
-      return {
-        success: true,
-        data: {
-          applications: [
-            { id: 'app-1', job_id: 'j-1', jobTitle: 'Graduate Software Engineer - AI Platforms', company: 'NextGen Cloud Technologies', status: 'SHORTLISTED', applied_at: new Date().toISOString() }
-          ]
-        }
-      };
+      // Real applications are tracked client-side; return empty array for new users
+      return { success: true, data: { applications: [] } };
     }
     if (endpoint.includes('/apply')) {
       return { success: true, data: { status: 'APPLIED', message: 'Application submitted successfully with verified Career Passport.' } };

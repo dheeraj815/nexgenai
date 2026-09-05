@@ -7,7 +7,7 @@ export const Projects: React.FC = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
-  const [technologies, setTechnologies] = useState('React, Node.js, PostgreSQL');
+  const [technologies, setTechnologies] = useState('');
   const [githubUrl, setGithubUrl] = useState('');
   const [liveUrl, setLiveUrl] = useState('');
   const [status, setStatus] = useState('IN_PROGRESS');

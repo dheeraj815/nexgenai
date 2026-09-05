@@ -12,10 +12,10 @@ export const PortfolioViewer: React.FC = () => {
   const [isCopied, setIsCopied] = useState(false);
   const [isPublic, setIsPublic] = useState(true);
 
-  const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || 'Student Candidate' : 'Student Candidate';
-  const targetRole = user?.profile?.targetRole || 'Software & Systems Engineer';
-  const academicStage = user?.profile?.academicStage || 'COLLEGE_YEAR_1';
-  const institution = academicProfile.collegeName || user?.profile?.institutionName || 'Engineering Scholar';
+  const fullName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || '' : '';
+  const targetRole = user?.profile?.targetRole || '';
+  const academicStage = user?.profile?.academicStage || '';
+  const institution = academicProfile.collegeName || user?.profile?.institutionName || '';
 
   const handleShare = () => {
     navigator.clipboard.writeText(window.location.href);
@@ -85,14 +85,14 @@ export const PortfolioViewer: React.FC = () => {
       {/* Hero Section */}
       <div className="p-8 sm:p-12 bg-slate-900 border border-slate-800 rounded-3xl text-center space-y-4">
         <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 mx-auto flex items-center justify-center text-white text-3xl font-bold shadow-xl shadow-blue-500/25">
-          {fullName[0] || 'U'}
+          {fullName[0] || '?'}
         </div>
         <div>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
             {fullName}
           </h1>
           <p className="text-sm font-semibold text-blue-400 mt-1">
-            {targetRole} • {institution}
+            {[targetRole, institution].filter(Boolean).join(' • ')}
           </p>
           <p className="text-xs text-slate-400 max-w-lg mx-auto mt-2 leading-relaxed">
             Verified candidate profile backed by cryptographic proof of work, practical coding submissions, and academic credentials.
